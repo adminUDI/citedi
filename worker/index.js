@@ -121,7 +121,7 @@ function panel(user,state,accounts,message = '',status = 200) {
       (account.role === 'editor' ? '<form method="post" action="/admin/accounts/status"><input type="hidden" name="email" value="' + html(account.email) + '"><input type="hidden" name="active" value="' + (account.active ? 0 : 1) + '"><button class="button secondary">' + (account.active ? 'Desactivar' : 'Activar') + '</button></form>' : '') + '</div>').join('') +
     '</div><h3>Crear cuenta de edición</h3><form class="new-account" method="post" action="/admin/accounts">' + input('name','Nombre','text','maxlength="100"') + input('email','Correo electrónico','email','maxlength="254"') + input('password','Contraseña inicial','password','autocomplete="new-password" minlength="12" maxlength="128"') + '<button class="button primary">Crear editor</button></form></section>' : '';
   return page('Gestor de contenidos','<div class="utility"><div class="wrap"><span>GESTOR DE CONTENIDOS</span><a href="/">Ver portal ↗</a></div></div><header class="wrap header">' + brand +
-    '<form method="post" action="/logout"><button class="button secondary">Cerrar sesión</button></form></header><main class="wrap dashboard" id="contenido"><aside><small>ESPACIO EDITORIAL</small><strong>' + html(user.name) + '</strong><p>' + (admin ? 'Administrador' : 'Editor') + '</p><a href="#editor">Portada</a>' + (admin ? '<a href="#usuarios">Usuarios</a>' : '') + '<a href="#cuenta">Mi contraseña</a></aside><div class="editor"><div class="eyebrow"><span></span> CONTENIDO DEL PORTAL</div><h1>Editar portada</h1><p>Completa los campos de la página y revisa el borrador antes de publicar.</p>' +
+    '<form method="post" action="/logout"><button class="button secondary">Cerrar sesión</button></form></header><main class="wrap dashboard" id="contenido"><aside><small>ESPACIO EDITORIAL</small><strong>' + html(user.name) + '</strong><p>' + (admin ? 'Administrador' : 'Editor') + '</p><a href="#editor">Portada</a>' + (admin ? '<a href="#usuarios">Usuarios</a><a href="/admin/academico">AdmAcademic</a>' : '') + '<a href="#cuenta">Mi contraseña</a></aside><div class="editor"><div class="eyebrow"><span></span> CONTENIDO DEL PORTAL</div><h1>Editar portada</h1><p>Completa los campos de la página y revisa el borrador antes de publicar.</p>' +
     alert(message,status === 200) + '<div id="editor" class="editor-toolbar"><strong>' + (state.draft === state.published ? 'Sin cambios pendientes' : 'Borrador pendiente de publicación') + '</strong><a href="/admin/preview" target="_blank" rel="noopener">Vista previa ↗</a></div><form method="post" action="/admin/home"><input type="hidden" name="revision" value="' + state.revision + '">' +
     groups.map(([title,entries]) => '<fieldset class="editor-box"><legend>' + title + '</legend>' + entries.map(([key,label,,limit = 160,kind]) => '<label>' + label + (limit === 350 ? '<textarea name="' + key + '" required maxlength="' + limit + '" rows="3">' + html(draft[key]) + '</textarea>' : '<input name="' + key + '" value="' + html(draft[key]) + '" maxlength="' + limit + '"' + (kind === 'optional' ? '' : ' required') + '></label>')).map(field => field.endsWith('</label>') ? field : field + '</label>').join('') + '</fieldset>').join('') +
     '<div class="actions editor-actions"><button class="button secondary" name="action" value="save">Guardar borrador</button>' + (admin ? '<button class="button primary" name="action" value="publish">Publicar cambios</button>' : '') + '</div></form>' + accountSection +
@@ -148,6 +148,97 @@ async function readForm(request) {
     text += decoder.decode(value,{stream:true});
   }
   return new URLSearchParams(text + decoder.decode());
+}
+const academicGroups = [
+  ['Académico', [
+    ['tesis','Tesis','Tesista','Programa'],
+    ['registro-tesis','Registro de temas y directores','Tesista','Director propuesto'],
+    ['planes','Planes de estudio','Programa','Clave o periodo'],
+    ['curriculos','Currículum académico','Investigador','Área'],
+    ['prospectos','Prospectos','Persona interesada','Programa'],
+    ['egresados','Egresados','Persona egresada','Generación'],
+    ['evaluaciones','Evaluación docente','Docente','Periodo']
+  ]],
+  ['Investigación y vinculación', [
+    ['proyectos','Proyectos','Responsable','Clave'],
+    ['publicaciones','Productos científicos','Autores','DOI o referencia'],
+    ['convenios','Convenios','Institución','Folio'],
+    ['convocatorias','Convocatorias y oportunidades','Organizador','Enlace o referencia'],
+    ['eventos','Eventos','Organizador','Sede'],
+    ['noticias','Noticias','Área responsable','Referencia'],
+    ['cartelera','Cartelera digital','Área responsable','Referencia'],
+    ['reconocimientos','Reconocimientos','Persona reconocida','Folio']
+  ]],
+  ['Administración', [
+    ['atencion','Ventanilla de atención','Área responsable','Folio'],
+    ['funcionarios','Currículum de funcionarios','Funcionario','Cargo'],
+    ['metas','Gestión para resultados','Área responsable','Indicador'],
+    ['sipot','Transparencia SIPOT','Área responsable','Fracción o periodo'],
+    ['sipot-viaticos','Transparencia de viáticos','Área responsable','Fracción o periodo'],
+    ['viaticos','Viáticos','Comisionado','Folio'],
+    ['requisiciones','Requisiciones','Área solicitante','Folio'],
+    ['compras','Órdenes de compra','Proveedor','Folio']
+  ]]
+];
+const academicModules = new Map(academicGroups.flatMap(([,items]) => items.map(([key,...info]) => [key,info])));
+const academicStates = ['Pendiente','En proceso','Concluido','Archivado'];
+const academicRoot = '/admin/academico';
+function academicPage(title, body, status = 200) {
+  return page(title,'<header class="wrap header">' + brand + '<nav aria-label="Gestor"><a href="/admin">Gestor editorial</a><a href="' + academicRoot + '">Módulos académicos</a></nav></header><main class="wrap section academic" id="contenido"><div class="eyebrow"><span></span> ADMINISTRACIÓN ACADÉMICA</div><h1>' + html(title) + '</h1>' + body + '</main>',status);
+}
+async function academicRoute(path,method,form,url,user,sql) {
+  if (user.role !== 'admin') return academicPage('Acceso restringido','<p>Los registros académicos requieren una cuenta administradora.</p>',403);
+  if (path === academicRoot && method === 'GET') {
+    return academicPage('AdmAcademic','<p>Selecciona un módulo para consultar o registrar información.</p>' + academicGroups.map(([group,items]) => '<section class="academic-group"><h2>' + group + '</h2><div class="module-grid">' + items.map(([key,label]) => '<a class="editor-box module-card" href="' + academicRoot + '/' + key + '">' + html(label) + ' <span aria-hidden="true">→</span></a>').join('') + '</div></section>').join(''));
+  }
+  const key = path.slice(academicRoot.length + 1);
+  const module = academicModules.get(key);
+  if (!module) return academicPage('Módulo no encontrado','<p>Selecciona un módulo del tablero académico.</p>',404);
+  const [label,ownerLabel,referenceLabel] = module;
+  const here = academicRoot + '/' + key;
+  const getRecord = id => sql('SELECT * FROM academic_records WHERE module=? AND id=?',key,id).first();
+  const id = method === 'POST' ? clean(form.get('id')) : clean(url.searchParams.get('editar'));
+  const record = id ? await getRecord(id) : null;
+  if (id && !record) return academicPage(label,'<p>El registro solicitado no existe en este módulo.</p>',404);
+  let feedback = '';
+  let status = 200;
+  let values = record ?? {title:'', owner:'', reference:'', date:'', status:'Pendiente', notes:''};
+  if (method === 'POST') {
+    values = Object.fromEntries(['title','owner','reference','date','status','notes'].map(field => [field,clean(form.get(field))]));
+    const {title,owner,reference,date:recordDate,status:recordStatus,notes} = values;
+    const parsedDate = recordDate && new Date(recordDate + 'T00:00:00Z');
+    const validDate = !recordDate || /^\d{4}-\d{2}-\d{2}$/.test(recordDate) && Number.isFinite(parsedDate.getTime()) && parsedDate.toISOString().slice(0,10) === recordDate;
+    if (!title || title.length > 180 || owner.length > 150 || reference.length > 250 || notes.length > 2500 || !validDate || !academicStates.includes(recordStatus)) {
+      feedback = 'Revisa el título, la fecha y la longitud de los campos.';
+      status = 400;
+    } else {
+      const params = [title,owner,reference,recordDate,recordStatus,notes,user.email,new Date().toISOString()];
+      if (record) {
+        const result = await sql('UPDATE academic_records SET title=?,owner=?,reference=?,date=?,status=?,notes=?,updated_by=?,updated_at=?,revision=revision+1 WHERE module=? AND id=? AND revision=?',...params,key,id,clean(form.get('revision'))).run();
+        if (!result.meta.changes) return academicPage(label,'<p>Otra sesión actualizó este registro. <a href="' + here + '?editar=' + html(id) + '">Abrir la revisión actual</a>.</p>',409);
+      } else {
+        await sql('INSERT INTO academic_records (title,owner,reference,date,status,notes,updated_by,updated_at,module,id) VALUES (?,?,?,?,?,?,?,?,?,?)',...params,key,crypto.randomUUID()).run();
+      }
+      return redirect(here + '?guardado=1');
+    }
+  }
+  const query = clean(url.searchParams.get('q')).slice(0,100);
+  const filter = '%' + query.replace(/[\\%_]/g,'\\$&') + '%';
+  const offset = Math.max(0,Math.min(1000000,Number.parseInt(url.searchParams.get('desde'),10) || 0));
+  const {results} = await sql("SELECT id,title,owner,reference,date,status FROM academic_records WHERE module=? AND (title LIKE ? ESCAPE '\\' OR owner LIKE ? ESCAPE '\\' OR reference LIKE ? ESCAPE '\\') ORDER BY updated_at DESC,id LIMIT 51 OFFSET ?",key,filter,filter,filter,offset).all();
+  const browse = n => here + '?' + new URLSearchParams({q:query,desde:n});
+  const rows = results.slice(0,50).map(row => '<tr><th scope="row"><a href="' + here + '?editar=' + html(row.id) + '#registro">' + html(row.title) + '</a></th><td>' + html(row.owner) + '</td><td>' + html(row.reference) + '</td><td>' + html(row.date) + '</td><td>' + html(row.status) + '</td></tr>').join('');
+  const editorField = (name,title,max,type='text') => '<label>' + title + '<input type="' + type + '" name="' + name + '" value="' + html(values[name]) + '" maxlength="' + max + '"' + (name === 'title' ? ' required' : '') + '></label>';
+  return academicPage(label,
+    (url.searchParams.has('guardado') ? alert('Registro guardado.',true) : '') +
+    '<div class="actions"><a class="button primary" href="' + here + '#registro">Nuevo registro</a><a href="' + academicRoot + '">Volver a los módulos</a></div>' +
+    '<form class="record-search" method="get" action="' + here + '"><label>Buscar registros<input name="q" maxlength="100" value="' + html(query) + '" placeholder="Título, nombre o referencia"></label><button class="button secondary">Buscar</button></form>' +
+    (rows ? '<div class="record-table"><table><thead><tr><th scope="col">Título</th><th scope="col">' + ownerLabel + '</th><th scope="col">' + referenceLabel + '</th><th scope="col">Fecha</th><th scope="col">Estado</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<p class="record-empty">No hay registros que mostrar.</p>') +
+    '<div class="actions">' + (offset ? link(browse(Math.max(0,offset-50)),'Anterior') : '') + (results.length > 50 ? link(browse(offset+50),'Siguiente') : '') + '</div>' +
+    '<form id="registro" class="editor-box record-editor" method="post" action="' + here + '#registro"><h2>' + (record ? 'Editar registro' : 'Nuevo registro') + '</h2>' + alert(feedback) +
+    (record ? '<input type="hidden" name="id" value="' + html(record.id) + '"><input type="hidden" name="revision" value="' + html(record.revision) + '">' : '') +
+    editorField('title','Título',180) + editorField('owner',ownerLabel,150) + editorField('reference',referenceLabel,250) + editorField('date','Fecha',10,'date') +
+    '<label>Estado<select name="status">' + academicStates.map(state => '<option' + (state === values.status ? ' selected' : '') + '>' + state + '</option>').join('') + '</select></label><label>Observaciones<textarea name="notes" rows="4" maxlength="2500">' + html(values.notes) + '</textarea></label><div><button class="button primary">Guardar registro</button></div></form>',status);
 }
 async function route(request, env) {
   const url = new URL(request.url);
@@ -215,8 +306,13 @@ async function route(request, env) {
     if (tokenHash) await sql('DELETE FROM sessions WHERE token=?',tokenHash).run();
     return redirect('/admin',cookie(url,'',0));
   }
+  if (method === 'GET' && ['/AdmAcademic','/AdmAcademic/','/AdmAcademic/index.php'].includes(path)) return redirect(academicRoot);
   if (path.startsWith('/admin')) {
     if (!user) return redirect('/admin');
+    if (path === academicRoot || path.startsWith(academicRoot + '/')) {
+      if (!['GET','POST'].includes(method)) return new Response(null,{status:405,headers:{Allow:'GET, POST'}});
+      return academicRoute(path,method,form,url,user,sql);
+    }
     const render = async (message,status) => panel(user,await stateOf(),user.role === 'admin' ? (await sql('SELECT email,name,role,active FROM accounts ORDER BY role,name,email').all()).results : [],message,status);
     if (path === '/admin' && method === 'GET') {
       const messages = {saved:'Borrador guardado.',published:'Cambios publicados en la portada.',created:'Cuenta de edición creada.',account:'Estado de la cuenta actualizado.',password:'Contraseña actualizada.'};
@@ -296,6 +392,7 @@ export default {
   }
 };
 const css = `
+.academic h1{font-size:clamp(2.5rem,6vw,4.5rem);margin:.18em 0}.academic-group{margin-block:30px}.academic-group h2,.record-editor h2{font-size:1.65rem;margin-bottom:12px}.module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px}.module-card{display:flex;justify-content:space-between;gap:12px;margin:0;color:var(--wine);font-weight:750}.record-search{display:flex;align-items:end;gap:10px;margin-block:20px}.record-search label{flex:1;max-width:400px}.record-table{overflow:auto}.record-table table{border-collapse:collapse;width:100%;text-align:left}.record-table td,.record-table th{padding:10px 12px;border-bottom:1px solid var(--line)}.record-table a{color:var(--wine);text-decoration:underline}.record-editor{max-width:760px;margin-top:24px}.record-editor select{font:inherit;padding:9px;border:1px solid var(--line);border-radius:6px}.record-empty{padding:20px 0}
 :root{color-scheme:light;--ink:#271922;--muted:#695b63;--wine:#6c1e3d;--deep:#381429;--line:#e7dce1;--paper:#fffdfc;--soft:#f8f1f3;--accent:#bf746f;font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink)}

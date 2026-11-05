@@ -11,6 +11,7 @@ mkdirSync('data', {recursive: true});
 const database = new DatabaseSync('data/portal.sqlite');
 database.exec('PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000');
 database.exec(readFileSync(new URL('./drizzle/0000_cms.sql', import.meta.url), 'utf8').replaceAll('CREATE TABLE ', 'CREATE TABLE IF NOT EXISTS '));
+database.exec(readFileSync(new URL('./drizzle/0001_academic.sql', import.meta.url), 'utf8'));
 const DB = {
   prepare(sql) {
     return this.bindStatement(sql, []);

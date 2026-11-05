@@ -2,7 +2,9 @@
 
 Portada académica en JavaScript basada en la [portada oficial del CITEDI](https://www.citedi.ipn.mx/). Usa una foto del campus y los distintivos institucionales recuperados del respaldo local. La foto puede sustituirse desde el gestor mediante una URL HTTPS.
 
-Las rutas `/portal/`, `/portal/index.php` e `/index.php` redirigen a la portada JavaScript. Las subpáginas académicas se enlazan al sitio oficial. AdmAcademic, Moodle y las demás aplicaciones PHP conservan su instalación independiente. El gestor tiene su propia base de usuarios.
+Las rutas `/portal/`, `/portal/index.php` e `/index.php` redirigen a la portada JavaScript. Las subpáginas públicas se enlazan al sitio oficial. El tablero inspirado en AdmAcademic está en `/admin/academico` y comparte las cuentas del gestor editorial.
+
+El administrador puede crear, buscar, editar y archivar registros en los módulos académicos, de investigación y administrativos. Los módulos usan fichas por categoría con título, responsable, referencia, fecha, estado y observaciones. Los flujos especializados de PHP, sus respaldos y sus cuentas históricas requieren una migración aparte.
 
 ## Iniciar en Windows
 
