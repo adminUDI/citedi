@@ -1,4 +1,4 @@
-import {migratedNavigation,portalExtras,portalHomeUpdates,portalMedia,portalImport,portalPublic,portalAdmin} from '../portal.js';
+import {migratedNavigation,portalExtras,portalHomeUpdates,portalMedia,portalImport,portalPublic,portalAdmin,portalTarget} from '../portal.js';
 const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
 const bundledAssets = {};
@@ -69,7 +69,7 @@ const officialLinks = {
   students: ipn + '/informacion-estudiantes/tramites-escolares-citedi-ipn/',
   alumni: ipn + '/informacion-estudiantes/egresados.html',
   labs: ipn + '/lineas-investigacion/laboratorios/',
-  research: ipn + '/lineas-investigacion/lgac.html',
+  research: '/investigacion',
   calendar: 'https://www.ipn.mx/calendario-academico.html'
 };
 const socialLinks = [
@@ -84,6 +84,7 @@ function navigation(content) {
 }
 function home(content, preview = false,updates=[]) {
   const c = {...initial,...content};
+  for(const key of ['mastersLink','doctorateLink','noticeLink','contactLink']) c[key]=portalTarget(c[key]);
   const photo = c.heroImage || '/assets/campus.jpg';
   const description = c.heroImage ? c.heroAlt : 'Edificio del CITEDI en Tijuana';
   const programs = [['Maestría','masters'],['Doctorado','doctorate']];
@@ -359,7 +360,7 @@ async function route(request, env) {
         const value = clean(form.get(key));
         let valid = value.length <= limit && (value || kind === 'optional');
         if ((kind === 'url' || key === 'heroImage') && value) {
-          try { const target = new URL(value); valid = valid && target.protocol === 'https:' && !target.username && !target.password; }
+          try { const target = new URL(value,'https://portal.local'); valid = valid && (target.protocol === 'https:') && !target.username && !target.password && (value.startsWith('https://') || value.startsWith('/') && !value.startsWith('//') && !value.includes('\\')); }
           catch { valid = false; }
         }
         if (!valid) return render('Revisa el campo «' + label + '». Los enlaces deben usar HTTPS.',400);

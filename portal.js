@@ -2,7 +2,16 @@ import sanitizeHtml from 'sanitize-html';
 import seed from './portal-seed.json' with {type:'json'};
 
 const sourceDocuments = new Map(seed.documents.map(document => [document.id,document]));
-const kinds = {page:'Página',news:'Noticia',event:'Evento',call:'Convocatoria',article:'Publicación'};
+export function portalTarget(value) {
+  const targets={
+    'https://www.citedi.ipn.mx/oferta-educativa-citedi-ipn/maestria-sistemas-digitales/':'/maestria',
+    'https://www.citedi.ipn.mx/oferta-educativa-citedi-ipn/doctorado-sistemas-digitales/':'/doctorado',
+    'https://www.citedi.ipn.mx/oferta-educativa-citedi-ipn/convocatorias-de-admisi%C3%B3n/':'/admision',
+    'https://www.citedi.ipn.mx/conocenos/contactanos.html':'/contacto'
+  };
+  return Object.hasOwn(targets,value)?targets[value]:value;
+}
+const kinds = {page:'Página',news:'Noticia',event:'Evento',call:'Convocatoria',article:'Publicación',profile:'Perfil de investigador'};
 export const portalMenu = [
   ['Conócenos',[
     ['¿Quiénes somos?','/conocenos#quienes'],['Misión y visión','/conocenos#misionvision'],
@@ -190,20 +199,23 @@ export async function portalAdmin(path,method,form,url,user,sql,context) {
   const id=path.slice(root.length+1);
   if(!id) {
     const q=String(url.searchParams.get('q')||'').toLocaleLowerCase('es').slice(0,120);
-    const documents=(await allDocuments(sql,true)).filter(d=>!q||(d.title+' '+d.kind).toLocaleLowerCase('es').includes(q)).sort((a,b)=>a.kind.localeCompare(b.kind)||a.title.localeCompare(b.title,'es'));
+    const order=['page','news','event','call','profile','article'];
+    const documents=(await allDocuments(sql,true)).filter(d=>!q||(d.title+' '+d.kind).toLocaleLowerCase('es').includes(q)).sort((a,b)=>order.indexOf(a.kind)-order.indexOf(b.kind)||a.title.localeCompare(b.title,'es'));
     return portalShell('Páginas y publicaciones','<p><a href="/admin">Volver al gestor</a></p><div class="actions">'+['page','news','event','call'].map(kind=>'<a class="button secondary" href="'+root+'/nuevo?tipo='+kind+'">Crear '+kinds[kind].toLocaleLowerCase('es')+'</a>').join('')+'</div><form class="record-search"><label>Buscar contenido<input name="q" value="'+html(q)+'"></label><button class="button secondary">Buscar</button></form><ul class="portal-results">'+documents.map(d=>'<li><span>'+html(kinds[d.kind])+'</span><a href="'+root+'/'+html(d.id)+'">'+html(d.title)+'</a></li>').join('')+'</ul>',context);
   }
-  let document=id==='nuevo'?{id:'',title:'',body:'',kind:Object.hasOwn(kinds,url.searchParams.get('tipo'))?url.searchParams.get('tipo'):'page',date:'',revision:-1,source:'CMS CITEDI'}:await documentById(id,sql,true);
+  let document=id==='nuevo'?{id:'contenido-'+crypto.randomUUID(),title:'',body:'',kind:Object.hasOwn(kinds,url.searchParams.get('tipo'))?url.searchParams.get('tipo'):'page',date:'',revision:-1,source:'CMS CITEDI'}:await documentById(id,sql,true);
   if(!document)return portalShell('Página no encontrada','<p>El contenido no existe.</p>',context,404);
   if(url.searchParams.has('preview')&&id!=='nuevo'&&method==='GET')return portalShell(document.title,'<div class="preview-banner">Vista previa del borrador</div><div class="portal-body">'+document.body+'</div>',context);
   let error='';let status=200;
   if(method==='POST') {
     const title=String(form.get('title')||'').trim(),body=String(form.get('body')||''),date=String(form.get('date')||'');
     const action=form.get('action');
-    if(!title||title.length>250||body.length>180000||!['save','publish'].includes(action)||!(/^\d{4}-\d{2}-\d{2}$/.test(date)||date==='')){error='Revisa el título, la fecha y la longitud del contenido.';status=400;}
+    const validDate=date===''||/^\d{4}-\d{2}-\d{2}$/.test(date)&&Number.isFinite(Date.parse(date+'T00:00:00Z'))&&new Date(date+'T00:00:00Z').toISOString().slice(0,10)===date;
+    if(!title||title.length>250||body.length>180000||!['save','publish'].includes(action)||!validDate){error='Revisa el título, la fecha y la longitud del contenido.';status=400;}
     else if(action==='publish'&&user.role!=='admin'){error='La publicación requiere una cuenta administradora.';status=403;}
     else{
-      const actualId=id==='nuevo'?'contenido-'+crypto.randomUUID():id;
+      const actualId=id==='nuevo'?String(form.get('newId')||''):id;
+      if(id==='nuevo'&&!/^contenido-[a-f0-9-]{36}$/.test(actualId))return portalShell('Solicitud inválida','<p>Abre nuevamente el formulario de creación.</p>',context,400);
       const next={...document,id:actualId,title,date,body:cleanPortalBody(body)};
       delete next.revision;
       const revision=String(form.get('revision'));
@@ -227,6 +239,6 @@ export async function portalAdmin(path,method,form,url,user,sql,context) {
   const message=url.searchParams.get('guardado');
   return portalShell('Editar '+kinds[document.kind].toLocaleLowerCase('es'),'<p><a href="'+root+'">Volver al contenido</a></p>'+
     (message?alert(message==='publish'?'Contenido publicado.':'Borrador guardado.',true):'')+alert(error)+
-    '<form class="editor-box portal-editor" method="post"><input type="hidden" name="revision" value="'+document.revision+'"><label>Título<input name="title" maxlength="250" value="'+html(document.title)+'" required></label><label>Fecha<input name="date" type="date" value="'+html(document.date)+'"></label><label>Contenido HTML<textarea name="body" rows="22" maxlength="180000">'+html(document.body)+'</textarea></label><p>Puedes conservar imágenes, enlaces, tablas y encabezados del contenido importado.</p><div class="actions"><button class="button secondary" name="action" value="save">Guardar borrador</button>'+(user.role==='admin'?'<button class="button primary" name="action" value="publish">Publicar</button>':'')+(id!=='nuevo'?'<a href="'+root+'/'+html(id)+'?preview=1" target="_blank" rel="noopener">Vista previa guardada ↗</a>':'')+'</div></form>',context,status);
+    '<form class="editor-box portal-editor" method="post"><input type="hidden" name="revision" value="'+document.revision+'">'+(id==='nuevo'?'<input type="hidden" name="newId" value="'+html(document.id)+'">':'')+'<label>Título<input name="title" maxlength="250" value="'+html(document.title)+'" required></label><label>Fecha<input name="date" type="date" value="'+html(document.date)+'"></label><label>Contenido HTML<textarea name="body" rows="22" maxlength="180000">'+html(document.body)+'</textarea></label><p>Puedes conservar imágenes, enlaces, tablas y encabezados del contenido importado.</p><div class="actions"><button class="button secondary" name="action" value="save">Guardar borrador</button>'+(user.role==='admin'?'<button class="button primary" name="action" value="publish">Publicar</button>':'')+(id!=='nuevo'?'<a href="'+root+'/'+html(id)+'?preview=1" target="_blank" rel="noopener">Vista previa guardada ↗</a>':'')+'</div></form>',context,status);
 }
 
