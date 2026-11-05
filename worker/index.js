@@ -1,3 +1,4 @@
+import {migratedNavigation,portalExtras,portalHomeUpdates,portalMedia,portalImport,portalPublic,portalAdmin} from '../portal.js';
 const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
 const bundledAssets = {};
@@ -79,17 +80,9 @@ const socialLinks = [
 ];
 const footer = '<footer><div class="wrap footer"><div><strong>Instituto Politécnico Nacional</strong><p>Centro de Investigación y Desarrollo de Tecnología Digital</p></div><div><strong>Redes sociales</strong><div class="social-links">' + socialLinks.map(([label,url]) => link(url,label)).join('') + '</div></div><div><a href="' + ipn + '/">Sitio oficial CITEDI IPN ↗</a><br><a href="/admin">Gestor de contenidos ↗</a></div></div></footer>';
 function navigation(content) {
-  const menu = [
-    ['Conócenos', [['Misión y visión',ipn + '/conocenos/mision-vision.html'],['Directorio académico',ipn + '/conocenos/directorio-citedi-ipn.html'],['Instalaciones',ipn + '/conocenos/instalaciones/'],['Contacto','#contacto']]],
-    ['Oferta educativa', [['Programas de posgrado','#oferta'],['Convocatorias',content.noticeLink],[content.masters,content.mastersLink],[content.doctorate,content.doctorateLink]]],
-    ['Estudiantes', [['Trámites escolares',officialLinks.students],['Becas y apoyos',ipn + '/informacion-estudiantes/becas-apoyos-citedi-ipn/'],['Egresados',officialLinks.alumni]]],
-    ['Investigación', [['Líneas de investigación',officialLinks.research],['Laboratorios',officialLinks.labs],['Investigadores',ipn + '/lineas-investigacion/investigadores/'],['Publicaciones',ipn + '/lineas-investigacion/publicaciones-cientificas-citedi.html']]]
-  ];
-  return '<nav class="institution-nav" aria-label="Navegación principal"><div class="wrap nav-items"><a href="/" aria-current="page">Inicio</a>' + menu.map(([title,items]) =>
-    '<details><summary>' + title + '</summary><ul>' + items.map(([label,url]) => '<li><a href="' + html(url) + '">' + html(label) + '</a></li>').join('') + '</ul></details>'
-  ).join('') + '<a href="#agenda">Agenda</a><a href="#contacto">Contacto</a></div></nav>';
+  return migratedNavigation(html);
 }
-function home(content, preview = false) {
+function home(content, preview = false,updates=[]) {
   const c = {...initial,...content};
   const photo = c.heroImage || '/assets/campus.jpg';
   const description = c.heroImage ? c.heroAlt : 'Edificio del CITEDI en Tijuana';
@@ -104,7 +97,7 @@ function home(content, preview = false) {
     '<section class="wrap section" id="oferta"><div class="section-head"><div><div class="eyebrow"><span></span> FORMACIÓN DE POSGRADO</div><h2>Oferta educativa</h2></div><p>Programas de posgrado en sistemas digitales con sede en Tijuana.</p></div><div class="programs">' +
     programs.map(([label,key]) => '<article class="program"><div class="eyebrow"><span></span>' + label + '</div><h3>' + html(c[key]) + '</h3><p>' + html(c[key + 'Text']) + '</p>' + link(c[key + 'Link'],'Conocer el programa','text-link') + '</article>').join('') +
     '</div></section><section id="investigacion" class="research"><div class="wrap section split"><div><div class="eyebrow"><span></span> CIENCIA APLICADA</div><h2>Investigación</h2><p>' + html(c.researchText) + '</p></div>' + link(officialLinks.research,'Ver líneas de investigación','button primary') + '</div></section>' +
-    '<div class="wrap section programs"><section id="agenda" class="program"><div class="eyebrow"><span></span> AGENDA POLITÉCNICA</div><h2>' + html(c.notice) + '</h2><p>' + html(c.noticeText) + '</p>' + link(c.noticeLink,'Consultar aviso','text-link') + link(officialLinks.calendar,'Calendario académico IPN','text-link') + '</section><section id="contacto" class="program"><div class="eyebrow"><span></span> UBICACIÓN Y CONTACTO</div><h2>Visita el CITEDI</h2><p>' + html(c.contact) + '</p>' + link('https://www.google.com/maps/search/?api=1&query=CITEDI-IPN+Tijuana','Cómo llegar','text-link') + link(c.contactLink,'Contacto institucional','text-link') + '</section></div></main>' + footer);
+    '<div class="wrap section programs"><section id="agenda" class="program"><div class="eyebrow"><span></span> AGENDA POLITÉCNICA</div><h2>' + html(c.notice) + '</h2><p>' + html(c.noticeText) + '</p>' + link(c.noticeLink,'Consultar aviso','text-link') + link(officialLinks.calendar,'Calendario académico IPN','text-link') + '</section><section id="contacto" class="program"><div class="eyebrow"><span></span> UBICACIÓN Y CONTACTO</div><h2>Visita el CITEDI</h2><p>' + html(c.contact) + '</p>' + link('https://www.google.com/maps/search/?api=1&query=CITEDI-IPN+Tijuana','Cómo llegar','text-link') + link('/contacto','Contacto institucional','text-link') + '</section></div>' + portalExtras(html,updates) + '</main>' + footer);
 }
 function authForm(setup, error = '', status = 200) {
   const title = setup ? 'Crea la primera cuenta' : 'Inicia sesión';
@@ -122,7 +115,7 @@ function panel(user,state,accounts,message = '',status = 200) {
       (account.role === 'editor' ? '<form method="post" action="/admin/accounts/status"><input type="hidden" name="email" value="' + html(account.email) + '"><input type="hidden" name="active" value="' + (account.active ? 0 : 1) + '"><button class="button secondary">' + (account.active ? 'Desactivar' : 'Activar') + '</button></form>' : '') + '</div>').join('') +
     '</div><h3>Crear cuenta de edición</h3><form class="new-account" method="post" action="/admin/accounts">' + input('name','Nombre','text','maxlength="100"') + input('email','Correo electrónico','email','maxlength="254"') + input('password','Contraseña inicial','password','autocomplete="new-password" minlength="12" maxlength="128"') + '<button class="button primary">Crear editor</button></form></section>' : '';
   return page('Gestor de contenidos','<div class="utility"><div class="wrap"><span>GESTOR DE CONTENIDOS</span><a href="/">Ver portal ↗</a></div></div><header class="wrap header">' + brand +
-    '<form method="post" action="/logout"><button class="button secondary">Cerrar sesión</button></form></header><main class="wrap dashboard" id="contenido"><aside><small>ESPACIO EDITORIAL</small><strong>' + html(user.name) + '</strong><p>' + (admin ? 'Administrador' : 'Editor') + '</p><a href="#editor">Portada</a>' + (admin ? '<a href="#usuarios">Usuarios</a><a href="/admin/academico">AdmAcademic</a>' : '') + '<a href="#cuenta">Mi contraseña</a></aside><div class="editor"><div class="eyebrow"><span></span> CONTENIDO DEL PORTAL</div><h1>Editar portada</h1><p>Completa los campos de la página y revisa el borrador antes de publicar.</p>' +
+    '<form method="post" action="/logout"><button class="button secondary">Cerrar sesión</button></form></header><main class="wrap dashboard" id="contenido"><aside><small>ESPACIO EDITORIAL</small><strong>' + html(user.name) + '</strong><p>' + (admin ? 'Administrador' : 'Editor') + '</p><a href="#editor">Portada</a><a href="/admin/contenidos">Páginas y publicaciones</a>' + (admin ? '<a href="#usuarios">Usuarios</a><a href="/admin/academico">AdmAcademic</a><a href="/admin/mensajes">Mensajes recibidos</a>' : '') + '<a href="#cuenta">Mi contraseña</a></aside><div class="editor"><div class="eyebrow"><span></span> CONTENIDO DEL PORTAL</div><h1>Editar portada</h1><p>Completa los campos de la página y revisa el borrador antes de publicar.</p>' +
     alert(message,status === 200) + '<div id="editor" class="editor-toolbar"><strong>' + (state.draft === state.published ? 'Sin cambios pendientes' : 'Borrador pendiente de publicación') + '</strong><a href="/admin/preview" target="_blank" rel="noopener">Vista previa ↗</a></div><form method="post" action="/admin/home"><input type="hidden" name="revision" value="' + state.revision + '">' +
     groups.map(([title,entries]) => '<fieldset class="editor-box"><legend>' + title + '</legend>' + entries.map(([key,label,,limit = 160,kind]) => '<label>' + label + (limit === 350 ? '<textarea name="' + key + '" required maxlength="' + limit + '" rows="3">' + html(draft[key]) + '</textarea>' : '<input name="' + key + '" value="' + html(draft[key]) + '" maxlength="' + limit + '"' + (kind === 'optional' ? '' : ' required') + '></label>')).map(field => field.endsWith('</label>') ? field : field + '</label>').join('') + '</fieldset>').join('') +
     '<div class="actions editor-actions"><button class="button secondary" name="action" value="save">Guardar borrador</button>' + (admin ? '<button class="button primary" name="action" value="publish">Publicar cambios</button>' : '') + '</div></form>' + accountSection +
@@ -134,7 +127,7 @@ const validEmail = email => email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.
 const validPassword = value => value.length >= 12 && value.length <= 128;
 const date = () => Date.now();
 const sessionToken = request => request.headers.get('cookie')?.match(/(?:^|;\s*)citedi_session=([a-f0-9]{64})(?:;|$)/)?.[1];
-async function readForm(request) {
+async function readForm(request,limit=24000) {
   if (!request.headers.get('content-type')?.startsWith('application/x-www-form-urlencoded')) return null;
   const reader = request.body?.getReader();
   if (!reader) return null;
@@ -145,7 +138,7 @@ async function readForm(request) {
     const {done,value} = await reader.read();
     if (done) break;
     length += value.length;
-    if (length > 24000) { await reader.cancel(); return null; }
+    if (length > limit) { await reader.cancel(); return null; }
     text += decoder.decode(value,{stream:true});
   }
   return new URLSearchParams(text + decoder.decode());
@@ -273,6 +266,8 @@ async function route(request, env) {
   const url = new URL(request.url);
   const path = url.pathname;
   const method = request.method;
+  const importedFile = await portalMedia(request,env,url) || await portalImport(request,env,url);
+  if (importedFile) return importedFile;
   const asset = path.startsWith('/assets/') ? path.slice(8) : '';
   const assetType = Object.hasOwn(assetTypes,asset) ? assetTypes[asset] : Object.hasOwn(academicIconTypes,asset) ? academicIconTypes[asset] : null;
   if (method === 'GET' && assetType) {
@@ -283,18 +278,21 @@ async function route(request, env) {
   if (method === 'GET' && ['/portal','/portal/','/portal/index.php','/index.php'].includes(path)) return redirect('/');
   if (path === '/style.css' && method === 'GET') return new Response(css,{headers:{...headers,'Content-Type':'text/css; charset=utf-8'}});
   const sql = (query,...values) => env.DB.prepare(query).bind(...values);
+  const portalContext={html,alert,page,brand,footer,redirect,validEmail,digest,clientAddress:request.headers.get('CF-Connecting-IP')||'local'};
   const stateOf = async () => await sql('SELECT * FROM home WHERE id=1').first() ??
     {draft:JSON.stringify(initial),published:JSON.stringify(initial),revision:0};
-  if (method === 'GET' && path === '/') return home(JSON.parse((await stateOf()).published));
+  if (method === 'GET' && path === '/') return home(JSON.parse((await stateOf()).published),false,await portalHomeUpdates(sql));
   let form;
   if (method === 'POST') {
     if (request.headers.get('origin') !== url.origin) return page('Solicitud rechazada','<main id="contenido" class="auth"><h1>Solicitud rechazada</h1></main>',403);
-    form = await readForm(request);
+    form = await readForm(request,path.startsWith('/admin/contenidos/')?2000000:24000);
     if (!form) return page('Solicitud inválida','<main id="contenido" class="auth"><h1>Solicitud inválida</h1></main>',400);
   }
   const token = sessionToken(request);
   const tokenHash = token && await digest(token);
   const user = tokenHash && await sql('SELECT a.email,a.name,a.role FROM sessions s JOIN accounts a ON a.email=s.email WHERE s.token=? AND s.expires>? AND a.active=1',tokenHash,date()).first();
+  const publicPage = await portalPublic(path,method,form,url,sql,portalContext);
+  if (publicPage) return publicPage;
   if (path === '/setup' || (path === '/admin' && method === 'GET' && !user)) {
     const admin = await sql("SELECT email FROM accounts WHERE role='admin' LIMIT 1").first();
     if (!admin && env.CMS_SETUP_KEY) {
@@ -339,6 +337,8 @@ async function route(request, env) {
   if (method === 'GET' && ['/AdmAcademic','/AdmAcademic/','/AdmAcademic/index.php'].includes(path)) return redirect(academicRoot);
   if (path.startsWith('/admin')) {
     if (!user) return redirect('/admin');
+    const contentPage = await portalAdmin(path,method,form,url,user,sql,portalContext);
+    if (contentPage) return contentPage;
     if (path === academicRoot || path.startsWith(academicRoot + '/')) {
       if (!['GET','POST'].includes(method)) return new Response(null,{status:405,headers:{Allow:'GET, POST'}});
       return academicRoute(path,method,form,url,user,sql);
@@ -544,4 +544,6 @@ aside a{color:var(--wine);font-weight:700}
 .program .text-link+.text-link{margin-top:7px}
 @media(max-width:700px){.nav-items{gap:0 13px;font-size:.82rem}.nav-items ul{position:static;min-width:0;max-width:240px}.masthead{min-height:430px}.masthead-copy{padding-block:46px}.masthead::after{background:#261121bb}.shortcuts .wrap{grid-template-columns:repeat(2,minmax(0,1fr))}.shortcuts a{border:0!important;padding:12px 5px}.institutional-header{min-height:75px}}
 
+.portal-document h1{font-size:clamp(2rem,5vw,3.8rem);margin:14px 0 32px}.portal-body{font-size:1.04rem;line-height:1.75;overflow-wrap:anywhere}.portal-body section{margin:28px 0;scroll-margin-top:24px}.portal-body h2{font-size:2rem;margin:34px 0 15px}.portal-body h3{font-size:1.5rem;margin:22px 0 12px}.portal-body p{margin:12px 0}.portal-body ul,.portal-body ol{padding-left:24px}.portal-body img{max-width:100%;height:auto;max-height:650px;object-fit:contain;margin:10px 0}.portal-body a,.portal-results a{color:var(--wine);text-decoration:underline;text-underline-offset:3px}.portal-body table{display:block;max-width:100%;overflow:auto;border-collapse:collapse;margin-block:20px;font-size:.9rem}.portal-body td,.portal-body th{padding:8px;border:1px solid var(--line);min-width:90px}.portal-body th{background:var(--soft)}.portal-body div:has(>img){text-align:center}.breadcrumbs,.source-note{font-size:.8rem}.source-note{padding-top:30px;margin-top:35px;border-top:1px solid var(--line)}.institutional-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:18px}.institutional-links a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;border:1px solid var(--line);border-radius:10px;font-size:.8rem;text-align:center;background:white}.institutional-links img{width:100%;height:105px;object-fit:contain}.migrated-home>div:not(.section-head){overflow-wrap:anywhere}.migrated-home img{max-width:100%;height:auto}.migrated-home h2{font-size:1.7rem}.migrated-home h3{font-size:1.3rem}.migrated-home a{color:var(--wine)}.migrated-home .home-panels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:25px}.portal-results{padding:0;list-style:none}.portal-results li{display:flex;gap:16px;border-bottom:1px solid var(--line);padding:12px 0;align-items:baseline}.portal-results time,.portal-results span{color:var(--muted);font-size:.8rem;min-width:90px}.portal-editor textarea{font:14px/1.5 ui-monospace,monospace}.contact-form{max-width:760px;margin:40px 0}.contact-form h2{font-size:2rem;margin-bottom:18px}.contact-form form{display:grid;gap:14px}.contact-form button{justify-self:start}.contact-form p{font-size:.85rem}.message-body{white-space:pre-wrap}.nav-items details summary{max-width:200px}.nav-items ul{max-width:350px}.nav-items a{overflow-wrap:anywhere}@media(max-width:700px){.migrated-home .home-panels{grid-template-columns:1fr}.portal-results li{display:block}.portal-results time,.portal-results span{display:block}.portal-body h2{font-size:1.6rem}}
+.portal-banners{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:20px}.portal-banners figure{margin:0;padding:10px;background:white;border:1px solid var(--line);border-radius:10px}.portal-banners img{width:100%;height:250px;object-fit:contain}.program-index{padding:16px;background:var(--soft);margin-bottom:22px;border-radius:8px}.program-index summary{font-weight:750;color:var(--wine);cursor:pointer}.program-index ul{columns:2;padding-left:22px}.program-index li{break-inside:avoid;margin:8px 0}@media(max-width:650px){.program-index ul{columns:1}}
 `;

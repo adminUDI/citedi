@@ -4,6 +4,18 @@
   "type": "module",
   "private": true,
   "license": "MIT",
-  "engines": {"node": ">=24"},
-  "scripts": {"start": "node server.js", "build": "node build.js"}
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "sanitize-html": "2.18.1"
+  },
+  "devDependencies": {
+    "cheerio": "1.1.2",
+    "esbuild": "0.25.12"
+  }
 }

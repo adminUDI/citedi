@@ -2,13 +2,13 @@
 
 Portada académica en JavaScript basada en la [portada oficial del CITEDI](https://www.citedi.ipn.mx/). Usa una foto del campus y los distintivos institucionales recuperados del respaldo local. La foto puede sustituirse desde el gestor mediante una URL HTTPS.
 
-Las rutas `/portal/`, `/portal/index.php` e `/index.php` redirigen a la portada JavaScript. Las subpáginas públicas se enlazan al sitio oficial. El tablero inspirado en AdmAcademic está en `/admin/academico` y comparte las cuentas del gestor editorial.
+Las rutas `/portal/`, `/portal/index.php` e `/index.php` redirigen a la portada JavaScript. Las subpáginas públicas recuperadas se sirven dentro del portal. El tablero inspirado en AdmAcademic está en `/admin/academico` y comparte las cuentas del gestor editorial.
 
 El administrador puede crear, buscar, editar y archivar registros en los módulos académicos, de investigación y administrativos. Los módulos usan fichas por categoría con título, responsable, referencia, fecha, estado y observaciones. Los flujos especializados de PHP, sus respaldos y sus cuentas históricas requieren una migración aparte.
 
 ## Iniciar en Windows
 
-Requisito: Node.js 24 o posterior. No se necesitan paquetes npm externos.
+Requisito: Node.js 24 o posterior con npm. Ejecuta `npm ci` antes de iniciar el servidor.
 
 ```powershell
 $env:CMS_SETUP_KEY = [guid]::NewGuid().ToString('N')
@@ -37,3 +37,17 @@ Los usuarios pueden actualizar su contraseña desde el panel. El contenido, las 
 El servidor local escucha en `127.0.0.1:3000` por defecto. Para alojarlo detrás de un proxy HTTPS, define `PUBLIC_ORIGIN` con el origen público exacto. `HOST` y `PORT` controlan la escucha local.
 
 Código fuente bajo licencia MIT. Las imágenes en `assets/` proceden del respaldo institucional y conservan sus derechos de origen.
+
+## Portal recuperado y gestor de páginas
+
+La nueva navegación abre contenido local para Conócenos, Entorno, Investigación, Posgrado y Servicios. Las páginas recuperadas conservan redirecciones desde sus rutas PHP. Las subpáginas de Maestría y Doctorado se consultan desde Secciones del programa.
+
+`portal-seed.json` contiene el contenido público recuperado y las referencias de sus archivos. El ZIP incluye esos archivos en `media/`. El servidor local sirve esa carpeta. En Sites se almacenan en el bucket R2 `BUCKET`. Los archivos se identifican por su hash SHA256.
+
+En **Páginas y publicaciones**, el editor guarda borradores de páginas, noticias, eventos y convocatorias. El administrador publica los cambios. Se almacenan en SQLite o D1 con revisión para detectar ediciones simultáneas. Las publicaciones del CMS aparecen en su ruta pública y en Publicaciones recientes de la portada.
+
+Los formularios de contacto y sugerencias guardan las solicitudes en **Mensajes recibidos**, disponible al administrador. El envío registra el mensaje en esa bandeja.
+
+La numeralia se tomó del portal oficial del IPN consultado el 5 de noviembre de 2026. Algunos documentos ya devolvían 404 en el servidor de origen y se identifican en el informe de migración.
+
+Para construir el Worker, ejecuta `npm run build`. La base de datos local aplica las tablas de `drizzle/` al arrancar. La base de datos y las cuentas locales son independientes de las del sitio publicado.

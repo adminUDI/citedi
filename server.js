@@ -12,6 +12,14 @@ const database = new DatabaseSync('data/portal.sqlite');
 database.exec('PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000');
 database.exec(readFileSync(new URL('./drizzle/0000_cms.sql', import.meta.url), 'utf8').replaceAll('CREATE TABLE ', 'CREATE TABLE IF NOT EXISTS '));
 database.exec(readFileSync(new URL('./drizzle/0001_academic.sql', import.meta.url), 'utf8'));
+database.exec(readFileSync(new URL('./drizzle/0002_portal.sql', import.meta.url), 'utf8'));
+const BUCKET = {
+  async get(key) {
+    if (!/^[a-f0-9]{64}\.[a-z0-9]+$/.test(key)) return null;
+    try { return {body: readFileSync(new URL('./media/' + key, import.meta.url))}; }
+    catch { return null; }
+  }
+};
 const DB = {
   prepare(sql) {
     return this.bindStatement(sql, []);
@@ -34,7 +42,7 @@ createServer(async (req, res) => {
     const method = req.method;
     const options = {method, headers: req.headers};
     if (!['GET', 'HEAD'].includes(method)) Object.assign(options, {body: Readable.toWeb(req), duplex: 'half'});
-    const response = await worker.fetch(new Request(origin + req.url, options), {DB, ASSETS, CMS_SETUP_KEY: process.env.CMS_SETUP_KEY});
+    const response = await worker.fetch(new Request(origin + req.url, options), {DB, ASSETS, BUCKET, CMS_SETUP_KEY: process.env.CMS_SETUP_KEY});
     res.writeHead(response.status, Object.fromEntries(response.headers));
     if (response.body && method !== 'HEAD') Readable.fromWeb(response.body).pipe(res);
     else res.end();
