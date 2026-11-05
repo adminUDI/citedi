@@ -2,6 +2,7 @@ const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
 const bundledAssets = {};
 const assetTypes = {'campus.jpg':'image/jpeg','ipn.png':'image/png','citedi.png':'image/png'};
+const academicIconTypes = {'academic-thesis.png':'image/png','academic-registroTesis.png':'image/png','academic-tabs-syllabus-lab.png':'image/png','academic-cv.png':'image/png','academic-contact.png':'image/png','academic-graduates.png':'image/png','academic-evaluaciondocente.png':'image/png','academic-projects.png':'image/png','academic-papers.png':'image/png','academic-agreements.png':'image/png','academic-icon-oportunities.png':'image/png','academic-events.png':'image/png','academic-news.png':'image/png','academic-icon-ds.png':'image/png','academic-certificate.png':'image/png','academic-vue.gif':'image/gif','academic-focusgroup.png':'image/png','academic-gpr.png':'image/png','academic-sipot.png':'image/png','academic-viaticos.png':'image/png','academic-requisiciones.png':'image/png','academic-bolsa-de-la-compra.png':'image/png'};
 const groups = [
   ['Presentación', [
     ['eyebrow','Etiqueta','INVESTIGACIÓN · POSGRADO · INNOVACIÓN'],
@@ -181,6 +182,34 @@ const academicGroups = [
   ]]
 ];
 const academicModules = new Map(academicGroups.flatMap(([,items]) => items.map(([key,...info]) => [key,info])));
+const academicIcons = {
+  'tesis':'academic-thesis.png',
+  'registro-tesis':'academic-registroTesis.png',
+  'planes':'academic-tabs-syllabus-lab.png',
+  'curriculos':'academic-cv.png',
+  'prospectos':'academic-contact.png',
+  'egresados':'academic-graduates.png',
+  'evaluaciones':'academic-evaluaciondocente.png',
+  'proyectos':'academic-projects.png',
+  'publicaciones':'academic-papers.png',
+  'convenios':'academic-agreements.png',
+  'convocatorias':'academic-icon-oportunities.png',
+  'eventos':'academic-events.png',
+  'noticias':'academic-news.png',
+  'cartelera':'academic-icon-ds.png',
+  'reconocimientos':'academic-certificate.png',
+  'atencion':'academic-vue.gif',
+  'funcionarios':'academic-focusgroup.png',
+  'metas':'academic-gpr.png',
+  'sipot':'academic-sipot.png',
+  'sipot-viaticos':'academic-sipot.png',
+  'viaticos':'academic-viaticos.png',
+  'requisiciones':'academic-requisiciones.png',
+  'compras':'academic-bolsa-de-la-compra.png'
+};
+function academicCard(key,label) {
+  return '<a class="module-card" href="' + academicRoot + '/' + key + '"><span class="module-label">' + html(label) + '</span><span class="module-art"><img src="/assets/' + academicIcons[key] + '" alt="" width="104" height="104" decoding="async"></span></a>';
+}
 const academicStates = ['Pendiente','En proceso','Concluido','Archivado'];
 const academicRoot = '/admin/academico';
 function academicPage(title, body, status = 200) {
@@ -189,7 +218,7 @@ function academicPage(title, body, status = 200) {
 async function academicRoute(path,method,form,url,user,sql) {
   if (user.role !== 'admin') return academicPage('Acceso restringido','<p>Los registros académicos requieren una cuenta administradora.</p>',403);
   if (path === academicRoot && method === 'GET') {
-    return academicPage('AdmAcademic','<p>Selecciona un módulo para consultar o registrar información.</p>' + academicGroups.map(([group,items]) => '<section class="academic-group"><h2>' + group + '</h2><div class="module-grid">' + items.map(([key,label]) => '<a class="editor-box module-card" href="' + academicRoot + '/' + key + '">' + html(label) + ' <span aria-hidden="true">→</span></a>').join('') + '</div></section>').join(''));
+    return academicPage('Administrador académico','<p>Selecciona un módulo para consultar o registrar información.</p>' + academicGroups.map(([group,items]) => '<section class="academic-group"><h2>' + group + '</h2><div class="module-grid">' + items.map(([key,label]) => academicCard(key,label)).join('') + '</div></section>').join(''));
   }
   const key = path.slice(academicRoot.length + 1);
   const module = academicModules.get(key);
@@ -245,10 +274,11 @@ async function route(request, env) {
   const path = url.pathname;
   const method = request.method;
   const asset = path.startsWith('/assets/') ? path.slice(8) : '';
-  if (method === 'GET' && Object.hasOwn(assetTypes,asset)) {
+  const assetType = Object.hasOwn(assetTypes,asset) ? assetTypes[asset] : Object.hasOwn(academicIconTypes,asset) ? academicIconTypes[asset] : null;
+  if (method === 'GET' && assetType) {
     const encoded = bundledAssets[asset];
     const bytes = encoded ? Uint8Array.from(atob(encoded), char => char.charCodeAt(0)) : env.ASSETS?.[asset];
-    if (bytes) return new Response(bytes,{headers:{...headers,'Content-Type':assetTypes[asset]}});
+    if (bytes) return new Response(bytes,{headers:{...headers,'Content-Type':assetType}});
   }
   if (method === 'GET' && ['/portal','/portal/','/portal/index.php','/index.php'].includes(path)) return redirect('/');
   if (path === '/style.css' && method === 'GET') return new Response(css,{headers:{...headers,'Content-Type':'text/css; charset=utf-8'}});
@@ -392,7 +422,7 @@ export default {
   }
 };
 const css = `
-.academic h1{font-size:clamp(2.5rem,6vw,4.5rem);margin:.18em 0}.academic-group{margin-block:30px}.academic-group h2,.record-editor h2{font-size:1.65rem;margin-bottom:12px}.module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px}.module-card{display:flex;justify-content:space-between;gap:12px;margin:0;color:var(--wine);font-weight:750}.record-search{display:flex;align-items:end;gap:10px;margin-block:20px}.record-search label{flex:1;max-width:400px}.record-table{overflow:auto}.record-table table{border-collapse:collapse;width:100%;text-align:left}.record-table td,.record-table th{padding:10px 12px;border-bottom:1px solid var(--line)}.record-table a{color:var(--wine);text-decoration:underline}.record-editor{max-width:760px;margin-top:24px}.record-editor select{font:inherit;padding:9px;border:1px solid var(--line);border-radius:6px}.record-empty{padding:20px 0}
+.academic h1{font-size:clamp(2.5rem,6vw,4.5rem);margin:.18em 0}.academic-group{margin-block:30px}.academic-group h2,.record-editor h2{font-size:1.65rem;margin-bottom:12px}.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(158px,100%),1fr));gap:16px}.module-card{display:grid;grid-template-rows:auto 1fr;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:white;text-align:center;transition:box-shadow .15s,border-color .15s}.module-card:hover{border-color:var(--wine);box-shadow:0 4px 12px #3814291a;text-decoration:none}.module-label{display:grid;place-items:center;min-height:55px;padding:8px;background:#ffbf16;color:#362409;font-weight:750;line-height:1.2}.module-art{display:grid;place-items:center;min-height:127px;padding:12px}.module-art img{width:104px;height:104px;object-fit:contain}@media(max-width:420px){.module-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.module-art{min-height:105px}.module-art img{width:80px;height:80px}}.record-search{display:flex;align-items:end;gap:10px;margin-block:20px}.record-search label{flex:1;max-width:400px}.record-table{overflow:auto}.record-table table{border-collapse:collapse;width:100%;text-align:left}.record-table td,.record-table th{padding:10px 12px;border-bottom:1px solid var(--line)}.record-table a{color:var(--wine);text-decoration:underline}.record-editor{max-width:760px;margin-top:24px}.record-editor select{font:inherit;padding:9px;border:1px solid var(--line);border-radius:6px}.record-empty{padding:20px 0}
 :root{color-scheme:light;--ink:#271922;--muted:#695b63;--wine:#6c1e3d;--deep:#381429;--line:#e7dce1;--paper:#fffdfc;--soft:#f8f1f3;--accent:#bf746f;font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink)}
