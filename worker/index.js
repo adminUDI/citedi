@@ -1,11 +1,13 @@
 const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
+const bundledAssets = {};
+const assetTypes = {'campus.jpg':'image/jpeg','ipn.png':'image/png','citedi.png':'image/png'};
 const groups = [
   ['Presentación', [
     ['eyebrow','Etiqueta','INVESTIGACIÓN · POSGRADO · INNOVACIÓN'],
     ['title','Título principal','Centro de Investigación y Desarrollo de Tecnología Digital', 110],
     ['intro','Descripción','Formamos talento e impulsamos la investigación aplicada en sistemas digitales desde Tijuana, Baja California.', 350],
-    ['heroImage','Imagen principal (URL HTTPS, opcional)','', 500, 'optional'],
+    ['heroImage','Imagen principal (URL HTTPS o foto del campus)','', 500, 'optional'],
     ['heroAlt','Descripción de la imagen','', 200, 'optional']
   ]],
   ['Oferta educativa', [
@@ -20,7 +22,8 @@ const groups = [
     ['notice','Título del aviso','Convocatorias de admisión'],
     ['noticeText','Descripción del aviso','Consulta las bases y el proceso de ingreso a los programas de posgrado.',350],
     ['noticeLink','Enlace del aviso',offer + 'convocatorias-de-admisi%C3%B3n/',500,'url'],
-    ['contact','Texto de contacto','Tijuana, Baja California, México'],
+    ['contact','Dirección','Av. Instituto Politécnico Nacional 1310, Colonia Nueva Tijuana, Tijuana, Baja California'],
+    ['researchText','Descripción de investigación','Conoce las líneas que conectan el cómputo inteligente, los sistemas dinámicos y las tecnologías de imagen y telecomunicaciones.',350],
     ['contactLink','Enlace de contacto',ipn + '/conocenos/contactanos.html',500,'url']
   ]]
 ];
@@ -59,30 +62,48 @@ function page(title, body, status = 200) {
 }
 const link = (url,label,classes = '') => '<a class="' + classes + '" href="' + html(url) + '">' + html(label) + ' <span aria-hidden="true">↗</span></a>';
 const input = (name,label,type = 'text',attributes = '') => '<label>' + label + '<input name="' + name + '" type="' + type + '" required ' + attributes + '></label>';
-const mark = '<span class="mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M8 29V13h24v16H8Zm5-16V8m7 5V8m7 5V8m-14 21v5m7-5v5m7-5v5M8 18H4m4 7H4m28-7h4m-4 7h4m-21-4 4 4 7-8" stroke="currentColor" stroke-width="2"/></svg></span>';
-const brand = '<a href="/" class="brand">' + mark + '<span><strong>CITEDI<span class="brand-divider"> / </span>IPN</strong><small>Centro de Tecnología Digital</small></span></a>';
-const footer = '<footer><div class="wrap footer">' + brand + '<p>Instituto Politécnico Nacional<br><small>Portal académico · Tijuana, B.C.</small></p><a href="/admin">Gestor de contenidos <span aria-hidden="true">↗</span></a></div></footer>';
-function art() {
-  const traces = Array.from({length:11},(_,i) => '<path d="M0 ' + (50+i*48) + 'h' + (117+i*11) + 'l55 -55h' + (300-i*14) + 'l70 70H900"/><circle cx="' + (117+i*11) + '" cy="' + (50+i*48) + '" r="4"/>').join('');
-  return '<svg class="art" viewBox="0 0 850 650" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0v32" fill="none" stroke="#ce9aab" stroke-opacity=".19"/></pattern><radialGradient id="light"><stop stop-color="#a44866"/><stop offset="1" stop-color="#3a1329"/></radialGradient><linearGradient id="chip" x2="1" y2="1"><stop stop-color="#55273f"/><stop offset="1" stop-color="#20101e"/></linearGradient></defs><path fill="url(#light)" d="M0 0h850v650H0z"/><path fill="url(#grid)" d="M0 0h850v650H0z"/><g fill="none" stroke="#eab0a8" stroke-opacity=".47">' + traces + '</g><g transform="translate(435 326) rotate(-24)"><rect x="-163" y="-163" width="326" height="326" rx="29" fill="#371927" stroke="#e298a3"/><rect x="-144" y="-144" width="288" height="288" rx="23" fill="url(#chip)" stroke="#b86c82" stroke-width="2"/><rect x="-117" y="-117" width="234" height="234" rx="12" fill="url(#grid)" stroke="#ac697a"/><path d="M-66 0h132M0-66V66M-46-46l92 92m0-92-92 92" stroke="#ebadb7" opacity=".7"/><circle r="42" fill="#2f1529" stroke="#efb3b5"/><circle r="11" fill="#efb3b5"/></g></svg>';
+const brand = '<a href="/" class="brand"><img src="/assets/citedi.png" alt="CITEDI · IPN" width="591" height="177"></a>';
+const officialLinks = {
+  students: ipn + '/informacion-estudiantes/tramites-escolares-citedi-ipn/',
+  alumni: ipn + '/informacion-estudiantes/egresados.html',
+  labs: ipn + '/lineas-investigacion/laboratorios/',
+  research: ipn + '/lineas-investigacion/lgac.html',
+  calendar: 'https://www.ipn.mx/calendario-academico.html'
+};
+const socialLinks = [
+  ['Facebook','https://www.facebook.com/CITEDI.IPN/'],
+  ['LinkedIn','https://www.linkedin.com/company/citedi-ipn/'],
+  ['Instagram','https://www.instagram.com/citedi_ipn/'],
+  ['YouTube','https://www.youtube.com/user/citediipn']
+];
+const footer = '<footer><div class="wrap footer"><div><strong>Instituto Politécnico Nacional</strong><p>Centro de Investigación y Desarrollo de Tecnología Digital</p></div><div><strong>Redes sociales</strong><div class="social-links">' + socialLinks.map(([label,url]) => link(url,label)).join('') + '</div></div><div><a href="' + ipn + '/">Sitio oficial CITEDI IPN ↗</a><br><a href="/admin">Gestor de contenidos ↗</a></div></div></footer>';
+function navigation(content) {
+  const menu = [
+    ['Conócenos', [['Misión y visión',ipn + '/conocenos/mision-vision.html'],['Directorio académico',ipn + '/conocenos/directorio-citedi-ipn.html'],['Instalaciones',ipn + '/conocenos/instalaciones/'],['Contacto','#contacto']]],
+    ['Oferta educativa', [['Programas de posgrado','#oferta'],['Convocatorias',content.noticeLink],[content.masters,content.mastersLink],[content.doctorate,content.doctorateLink]]],
+    ['Estudiantes', [['Trámites escolares',officialLinks.students],['Becas y apoyos',ipn + '/informacion-estudiantes/becas-apoyos-citedi-ipn/'],['Egresados',officialLinks.alumni]]],
+    ['Investigación', [['Líneas de investigación',officialLinks.research],['Laboratorios',officialLinks.labs],['Investigadores',ipn + '/lineas-investigacion/investigadores/'],['Publicaciones',ipn + '/lineas-investigacion/publicaciones-cientificas-citedi.html']]]
+  ];
+  return '<nav class="institution-nav" aria-label="Navegación principal"><div class="wrap nav-items"><a href="/" aria-current="page">Inicio</a>' + menu.map(([title,items]) =>
+    '<details><summary>' + title + '</summary><ul>' + items.map(([label,url]) => '<li><a href="' + html(url) + '">' + html(label) + '</a></li>').join('') + '</ul></details>'
+  ).join('') + '<a href="#agenda">Agenda</a><a href="#contacto">Contacto</a></div></nav>';
 }
 function home(content, preview = false) {
-  const c = Object.fromEntries(Object.entries(content).map(([key,value]) => [key,html(value)]));
-  const official = [
-    ['Conócenos','#conocenos'], ['Oferta educativa','#oferta'], ['Estudiantes',ipn + '/informacion-estudiantes/tramites-escolares-citedi-ipn/'], ['Investigación','#investigacion'], ['Contacto','#contacto']
-  ];
-  const cards = [['01','MAESTRÍA','masters'],['02','DOCTORADO','doctorate']];
+  const c = {...initial,...content};
+  const photo = c.heroImage || '/assets/campus.jpg';
+  const description = c.heroImage ? c.heroAlt : 'Edificio del CITEDI en Tijuana';
+  const programs = [['Maestría','masters'],['Doctorado','doctorate']];
+  const shortcuts = [['Estudiantes',officialLinks.students,'Servicios y trámites escolares'],['Egresados',officialLinks.alumni,'Vinculación con la comunidad'],['Laboratorios',officialLinks.labs,'Infraestructura de investigación'],['Programas','#oferta','Maestría y doctorado']];
   return page('Inicio',
     (preview ? '<div class="preview-banner">Vista previa del borrador <a href="/admin">Volver al editor</a></div>' : '') +
-    '<div class="utility"><div class="wrap"><span>INSTITUTO POLITÉCNICO NACIONAL</span><div><a href="https://www.ipn.mx/directorio-telefonico.html">Directorio</a><a href="https://www.ipn.mx/calendario-academico.html">Calendario</a><a href="/admin">Acceso CMS ↗</a></div></div></div>' +
-    '<header class="wrap header">' + brand + '<nav aria-label="Navegación principal">' + official.map(([name,url]) => '<a href="' + url + '">' + name + '</a>').join('') + '</nav></header>' +
-    '<main id="contenido"><section class="hero" id="conocenos"><div class="hero-copy"><div class="eyebrow"><span></span>' + c.eyebrow + '</div><h1>' + c.title + '</h1><p>' + c.intro + '</p><div class="actions"><a class="button primary" href="#oferta">Explorar posgrados <span aria-hidden="true">→</span></a><a class="quiet" href="#investigacion">Nuestra investigación <span aria-hidden="true">↗</span></a></div></div><div class="hero-visual">' +
-    (c.heroImage ? '<img src="' + c.heroImage + '" alt="' + c.heroAlt + '">' : art()) + '<span class="visual-tag">01 / TECNOLOGÍA DIGITAL</span></div></section>' +
-    '<div class="ribbon"><div class="wrap"><span>ACCESOS RÁPIDOS</span>' + link(content.noticeLink,'Admisión') + link(ipn + '/lineas-investigacion/lgac.html','Líneas de investigación') + link(content.contactLink,'Atención institucional') + '</div></div>' +
+    '<div class="utility"><div class="wrap"><span>INSTITUTO POLITÉCNICO NACIONAL</span><div><a href="https://www.ipn.mx/directorio-telefonico.html">Directorio</a><a href="' + officialLinks.calendar + '">Calendario</a><a href="/admin">Gestor CMS ↗</a></div></div></div>' +
+    '<header class="wrap header institutional-header"><a href="https://www.ipn.mx/" class="ipn-identity"><img src="/assets/ipn.png" alt="Educación · Instituto Politécnico Nacional" width="825" height="125"></a>' + brand + '</header>' + navigation(c) +
+    '<main id="contenido"><section class="masthead"><img src="' + html(photo) + '" alt="' + html(description) + '" fetchpriority="high"><div class="wrap masthead-inner"><div class="masthead-copy"><div class="eyebrow"><span></span>' + html(c.eyebrow) + '</div><h1>' + html(c.title) + '</h1><p>' + html(c.intro) + '</p><div class="actions"><a class="button primary" href="#oferta">Explorar posgrados <span aria-hidden="true">→</span></a>' + link(c.noticeLink,'Convocatorias','button campus-secondary') + '</div></div></div></section>' +
+    '<section class="shortcuts" aria-label="Accesos rápidos"><div class="wrap">' + shortcuts.map(([title,url,text],index) => '<a href="' + html(url) + '"><span class="shortcut-number">0' + (index+1) + '</span><span><strong>' + title + '</strong><small>' + text + '</small></span><span aria-hidden="true">↗</span></a>').join('') + '</div></section>' +
     '<section class="wrap section" id="oferta"><div class="section-head"><div><div class="eyebrow"><span></span> FORMACIÓN DE POSGRADO</div><h2>Oferta educativa</h2></div><p>Programas de posgrado en sistemas digitales con sede en Tijuana.</p></div><div class="programs">' +
-    cards.map(([number,label,key]) => '<article class="program"><div class="program-top"><span>' + label + '</span><span>' + number + '</span></div><h3>' + c[key] + '</h3><p>' + c[key + 'Text'] + '</p>' + link(content[key + 'Link'],'Conocer el programa','text-link') + '</article>').join('') +
-    '</div></section><section id="investigacion" class="research"><div class="wrap section split"><div><div class="eyebrow"><span></span> CIENCIA APLICADA</div><h2>Investigación</h2><p>Conoce las líneas que conectan el cómputo inteligente, los sistemas dinámicos y las tecnologías de imagen y telecomunicaciones.</p></div>' + link(ipn + '/lineas-investigacion/lgac.html','Ver líneas de investigación','button primary') + '</div></section>' +
-    '<div class="wrap section programs"><section id="agenda" class="program"><div class="eyebrow"><span></span> AGENDA ACADÉMICA</div><h3>' + c.notice + '</h3><p>' + c.noticeText + '</p>' + link(content.noticeLink,'Consultar aviso','text-link') + '</section><section id="contacto" class="program"><div class="eyebrow"><span></span> CONTACTO</div><h3>Visita el CITEDI</h3><p>' + c.contact + '</p>' + link(content.contactLink,'Información de contacto','text-link') + '</section></div></main>' + footer);
+    programs.map(([label,key]) => '<article class="program"><div class="eyebrow"><span></span>' + label + '</div><h3>' + html(c[key]) + '</h3><p>' + html(c[key + 'Text']) + '</p>' + link(c[key + 'Link'],'Conocer el programa','text-link') + '</article>').join('') +
+    '</div></section><section id="investigacion" class="research"><div class="wrap section split"><div><div class="eyebrow"><span></span> CIENCIA APLICADA</div><h2>Investigación</h2><p>' + html(c.researchText) + '</p></div>' + link(officialLinks.research,'Ver líneas de investigación','button primary') + '</div></section>' +
+    '<div class="wrap section programs"><section id="agenda" class="program"><div class="eyebrow"><span></span> AGENDA POLITÉCNICA</div><h2>' + html(c.notice) + '</h2><p>' + html(c.noticeText) + '</p>' + link(c.noticeLink,'Consultar aviso','text-link') + link(officialLinks.calendar,'Calendario académico IPN','text-link') + '</section><section id="contacto" class="program"><div class="eyebrow"><span></span> UBICACIÓN Y CONTACTO</div><h2>Visita el CITEDI</h2><p>' + html(c.contact) + '</p>' + link('https://www.google.com/maps/search/?api=1&query=CITEDI-IPN+Tijuana','Cómo llegar','text-link') + link(c.contactLink,'Contacto institucional','text-link') + '</section></div></main>' + footer);
 }
 function authForm(setup, error = '', status = 200) {
   const title = setup ? 'Crea la primera cuenta' : 'Inicia sesión';
@@ -94,7 +115,7 @@ function authForm(setup, error = '', status = 200) {
 const alert = (message, okay = false) => message ? '<p role="status" class="alert ' + (okay ? 'success' : '') + '">' + html(message) + '</p>' : '';
 function panel(user,state,accounts,message = '',status = 200) {
   const admin = user.role === 'admin';
-  const draft = JSON.parse(state.draft);
+  const draft = {...initial,...JSON.parse(state.draft)};
   const accountSection = admin ? '<section id="usuarios" class="editor-box"><h2>Usuarios</h2><div class="accounts">' +
     accounts.map(account => '<div><span><strong>' + html(account.name) + '</strong><small>' + html(account.email) + ' · ' + (account.role === 'admin' ? 'Administrador' : account.active ? 'Editor activo' : 'Editor desactivado') + '</small></span>' +
       (account.role === 'editor' ? '<form method="post" action="/admin/accounts/status"><input type="hidden" name="email" value="' + html(account.email) + '"><input type="hidden" name="active" value="' + (account.active ? 0 : 1) + '"><button class="button secondary">' + (account.active ? 'Desactivar' : 'Activar') + '</button></form>' : '') + '</div>').join('') +
@@ -132,6 +153,13 @@ async function route(request, env) {
   const url = new URL(request.url);
   const path = url.pathname;
   const method = request.method;
+  const asset = path.startsWith('/assets/') ? path.slice(8) : '';
+  if (method === 'GET' && Object.hasOwn(assetTypes,asset)) {
+    const encoded = bundledAssets[asset];
+    const bytes = encoded ? Uint8Array.from(atob(encoded), char => char.charCodeAt(0)) : env.ASSETS?.[asset];
+    if (bytes) return new Response(bytes,{headers:{...headers,'Content-Type':assetTypes[asset]}});
+  }
+  if (method === 'GET' && ['/portal','/portal/','/portal/index.php','/index.php'].includes(path)) return redirect('/');
   if (path === '/style.css' && method === 'GET') return new Response(css,{headers:{...headers,'Content-Type':'text/css; charset=utf-8'}});
   const sql = (query,...values) => env.DB.prepare(query).bind(...values);
   const stateOf = async () => await sql('SELECT * FROM home WHERE id=1').first() ??
@@ -357,4 +385,36 @@ aside a{color:var(--wine);font-weight:700}
 .accounts small{display:block;color:var(--muted);overflow-wrap:anywhere}
 @media(max-width:920px){.wrap{width:calc(100% - 44px)}.header{flex-wrap:wrap;padding-block:14px;gap:13px}.hero-copy{padding-left:22px}.hero{min-height:510px}.dashboard{grid-template-columns:175px minmax(0,1fr);gap:17px}}
 @media(max-width:650px){.wrap{width:calc(100% - 32px)}.utility .wrap>div{gap:9px}.utility .wrap>span{max-width:18ch}.header nav{width:100%;overflow-x:auto;white-space:nowrap;padding:4px 2px 7px;gap:16px}.hero{grid-template-columns:1fr}.hero-copy{padding:42px 16px}.hero-visual{min-height:250px}.visual-tag{right:12px;bottom:12px}.ribbon .wrap{grid-template-columns:1fr 1fr}.ribbon .wrap>*{padding:10px 7px;font-size:.75rem;border:0}.ribbon .wrap>span{font-size:.6rem}.section{padding-block:40px}.section-head,.split,.footer{display:grid;justify-items:start}.programs,.dashboard{grid-template-columns:1fr}.dashboard aside{display:flex;align-items:center;flex-wrap:wrap}.dashboard aside small{display:none}}
+
+.social-links{display:flex;flex-wrap:wrap;gap:5px 13px;font-size:.85rem}.brand img{display:block;width:clamp(135px,17vw,210px);height:auto}
+.ipn-identity img{display:block;width:clamp(155px,26vw,340px);height:auto}
+.institutional-header{min-height:98px;flex-wrap:nowrap}
+.institution-nav{background:#641a38;color:white;position:relative;z-index:2}
+.nav-items{display:flex;flex-wrap:wrap;gap:0 22px;min-height:48px;align-items:center}
+.nav-items details{position:relative}
+.nav-items summary{cursor:pointer;padding:10px 0}
+.nav-items ul{position:absolute;z-index:2;min-width:235px;list-style:none;margin:0;padding:7px;background:white;color:var(--ink);box-shadow:0 8px 25px #230d2540;border-bottom:3px solid var(--wine)}
+.nav-items li a{display:block;padding:8px 10px}
+.nav-items li a:hover{background:var(--soft)}
+.masthead{position:relative;display:grid;min-height:510px;isolation:isolate;background:#301b2b;color:#fff}
+.masthead>img,.masthead::after{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.masthead>img{object-fit:cover;object-position:center 52%}
+.masthead::after{content:"";background:linear-gradient(90deg,#21101bea 4%,#24101acc 36%,#29142845 74%,#2b162326)}
+.masthead-inner{display:grid;align-items:center}
+.masthead-copy{max-width:760px;padding-block:72px}
+.masthead-copy .eyebrow{color:#f4cedd}
+.masthead-copy h1{max-width:22ch;font-size:clamp(2.5rem,5vw,4.75rem);margin:15px 0}
+.masthead-copy p{color:#fff6fb;font-size:1.12rem;max-width:53ch}
+.campus-secondary{color:#fff;border-color:#f1dbe5;background:#2b142b66}
+.shortcuts{background:#fff;border-bottom:1px solid var(--line)}
+.shortcuts .wrap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.shortcuts a{padding:20px 14px;display:flex;gap:12px;align-items:center;border-right:1px solid var(--line)}
+.shortcuts a:first-child{border-left:1px solid var(--line)}
+.shortcuts small,.shortcuts strong{display:block}
+.shortcuts small{color:var(--muted);font-size:.73rem}
+.shortcut-number{color:var(--wine);background:var(--soft);border-radius:6px;padding:6px;font-size:.75rem;font-weight:800}
+.program h2{font-size:clamp(1.5rem,2.7vw,2.25rem);margin:12px 0}
+.program .text-link+.text-link{margin-top:7px}
+@media(max-width:700px){.nav-items{gap:0 13px;font-size:.82rem}.nav-items ul{position:static;min-width:0;max-width:240px}.masthead{min-height:430px}.masthead-copy{padding-block:46px}.masthead::after{background:#261121bb}.shortcuts .wrap{grid-template-columns:repeat(2,minmax(0,1fr))}.shortcuts a{border:0!important;padding:12px 5px}.institutional-header{min-height:75px}}
+
 `;

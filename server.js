@@ -1,8 +1,11 @@
 import { createServer } from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import worker from './worker/index.js';
+
+const assetFolder = new URL('./assets/', import.meta.url);
+const ASSETS = Object.fromEntries(readdirSync(assetFolder).map(name => [name,readFileSync(new URL(name,assetFolder))]));
 
 mkdirSync('data', {recursive: true});
 const database = new DatabaseSync('data/portal.sqlite');
@@ -30,7 +33,7 @@ createServer(async (req, res) => {
     const method = req.method;
     const options = {method, headers: req.headers};
     if (!['GET', 'HEAD'].includes(method)) Object.assign(options, {body: Readable.toWeb(req), duplex: 'half'});
-    const response = await worker.fetch(new Request(origin + req.url, options), {DB, CMS_SETUP_KEY: process.env.CMS_SETUP_KEY});
+    const response = await worker.fetch(new Request(origin + req.url, options), {DB, ASSETS, CMS_SETUP_KEY: process.env.CMS_SETUP_KEY});
     res.writeHead(response.status, Object.fromEntries(response.headers));
     if (response.body && method !== 'HEAD') Readable.fromWeb(response.body).pipe(res);
     else res.end();
