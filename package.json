@@ -1,0 +1,9 @@
+{
+  "name": "citedi-cms",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": {"node": ">=24"},
+  "scripts": {"start": "node server.js", "build": "node build.js"}
+}
