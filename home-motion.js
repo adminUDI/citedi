@@ -1,3 +1,4 @@
+import {institutionalVideoHero} from './video-hero.js';
 import seed from './portal-seed.json' with {type:'json'};
 
 const root='/admin/carrusel';
@@ -35,7 +36,7 @@ function safeUrl(value,required=false) {
 }
 export function renderFeature(content,state,html) {
   const config=state.config;
-  return '<section class="home-feature wrap"><div class="feature-intro"><div class="eyebrow"><span></span>'+html(content.eyebrow)+'</div><h1>'+html(content.title)+'</h1><p>'+html(content.intro)+'</p><div class="actions"><a class="button primary" href="#oferta">Explorar posgrados <span aria-hidden="true">→</span></a><a class="feature-more" href="/conocenos">Conoce el CITEDI ↗</a></div><div class="feature-location"><span aria-hidden="true">◎</span> Tijuana, Baja California · IPN</div></div>'+
+  return '<header class="portal-name-band"><h1>'+html(content.title)+'</h1></header>'+institutionalVideoHero(html)+'<section class="home-feature wrap"><div class="feature-intro"><div class="eyebrow"><span></span>'+html(content.eyebrow)+'</div><p>'+html(content.intro)+'</p><div class="actions"><a class="button primary" href="#oferta">Explorar posgrados <span aria-hidden="true">→</span></a><a class="feature-more" href="/conocenos">Conoce el CITEDI ↗</a></div><div class="feature-location"><span aria-hidden="true">◎</span> Tijuana, Baja California · IPN</div></div>'+
     '<section class="feature-carousel" aria-label="Imágenes y avisos destacados" aria-roledescription="carrusel" tabindex="0" data-carousel data-autoplay="'+config.autoplay+'" data-interval="'+config.interval+'" data-effect="'+config.effect+'">'+
     '<div class="carousel-viewport">'+config.slides.map((slide,index)=>
       '<article class="carousel-slide" data-slide aria-roledescription="diapositiva" aria-label="'+(index+1)+' de '+config.slides.length+'"'+(index?' hidden inert':'')+'><div class="slide-image '+(slide.fit==='cover'?'slide-cover':'slide-contain')+'"><img src="'+html(slide.image)+'" alt="'+html(slide.alt)+'"'+(index?' loading="lazy"':' fetchpriority="high"')+'></div><div class="slide-caption"><div><span class="slide-kicker">DESTACADO '+String(index+1).padStart(2,'0')+'</span><h2>'+html(slide.title)+'</h2><p>'+html(slide.description)+'</p></div>'+(slide.url?'<a href="'+html(slide.url)+'">'+html(slide.label||'Consultar')+' <span aria-hidden="true">↗</span></a>':'')+'</div></article>'
