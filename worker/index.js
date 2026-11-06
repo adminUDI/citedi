@@ -1,4 +1,3 @@
-import {socialSection} from '../social-section.js';
 import {communityAssetTypes} from '../community-news.js';
 import {visualShortcuts,visualResearch} from '../visual-sections.js';
 import quickPages from '../quick-pages.json' with {type:'json'};
@@ -123,7 +122,7 @@ function home(content, preview = false, updates = [], motion) {
     '<section class="wrap section" id="oferta" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> CONSTRUYE TU SIGUIENTE ETAPA</div><h2>Oferta educativa</h2></div><p>Formación de posgrado en sistemas digitales, investigación y desarrollo tecnológico.</p></div><div class="programs">'+programCards+'</div></section>'+
     visualResearch(c,html)+
     agendaSection(html)+portalExtras(html,updates)+
-    socialSection(html)+contactSection(c,html,contactForm)+'</main>'+footer);
+    contactSection(c,html,contactForm)+'</main>'+footer);
 }
 function authForm(setup, error = '', status = 200) {
   const title = setup ? 'Crea la primera cuenta' : 'Inicia sesión';

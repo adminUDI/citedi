@@ -164,7 +164,14 @@ for(const gallery of document.querySelectorAll('[data-infographics]')){
  previous.hidden=next.hidden=cards.length<2;previous.addEventListener('click',()=>move(-1));next.addEventListener('click',()=>move(1));track.addEventListener('keydown',event=>{if(event.target!==track||!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();move(event.key==='ArrowLeft'?-1:1);});let announcement;track.addEventListener('scroll',()=>{update();clearTimeout(announcement);announcement=setTimeout(()=>{status.textContent='Infografías '+count.textContent;},220);},{passive:true});new ResizeObserver(update).observe(track);update();
 }
 
-for(const section of document.querySelectorAll('[data-social-recordings]')){
- const player=section.querySelector('[data-social-player]'),title=section.querySelector('[data-social-title]'),watch=section.querySelector('[data-social-watch]'),buttons=[...section.querySelectorAll('[data-social-video]')];
- for(const button of buttons)button.addEventListener('click',()=>{const id=button.dataset.socialVideo;if(!/^[A-Za-z0-9_-]{11}$/.test(id)||button.getAttribute('aria-pressed')==='true')return;player.src='https://www.youtube-nocookie.com/embed/'+id;player.title=button.dataset.title;title.textContent=button.dataset.title;watch.href='https://www.youtube.com/watch?v='+id;for(const item of buttons)item.setAttribute('aria-pressed',String(item===button));});
+
+for(const section of document.querySelectorAll('.social-strip')){
+ const dialog=section.querySelector('dialog'),slot=dialog.querySelector('.social-dialog-player'),title=dialog.querySelector('h3'),watch=dialog.querySelector('[data-social-watch]');let trigger;
+ for(const card of section.querySelectorAll('[data-social-video]'))card.addEventListener('click',event=>{
+  if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||!dialog.showModal)return;
+  const id=card.dataset.socialVideo;if(!/^[A-Za-z0-9_-]{11}$/.test(id))return;event.preventDefault();trigger=card;
+  title.textContent=card.dataset.title;watch.href=card.href;const frame=document.createElement('iframe');frame.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1';frame.title=card.dataset.title;frame.allow='autoplay; encrypted-media; picture-in-picture; web-share';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';slot.replaceChildren(frame);dialog.showModal();
+ });
+ dialog.querySelector('[data-social-close]').addEventListener('click',()=>dialog.close());
+ dialog.addEventListener('close',()=>{slot.replaceChildren();trigger?.focus();});
 }

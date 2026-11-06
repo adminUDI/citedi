@@ -68,4 +68,4 @@ El encabezado institucional usa los logos e icono de idioma recuperados del IPN,
 
 ## Redes sociales y transmisiones
 
-La sección `#redes-sociales` muestra tres grabaciones verificadas del canal @citediipn, un selector de videos, el panel público de Facebook CITEDIIPN y el Mensaje del Secretario de Educación Pública difundido por IPNoficial. `social-videos.json` guarda la selección consultada el 6 de noviembre de 2026; se mantiene en el código. Los reproductores cargan de forma diferida y no inician automáticamente. El panel de Facebook depende de la disponibilidad del servicio y conserva un enlace directo a la página oficial.
+Franja compacta debajo de eventos y noticias con cuatro tarjetas: tres grabaciones CITEDI y el mensaje del Secretario. Solo se crea un reproductor al seleccionar un video; cerrar o pulsar Escape lo detiene y devuelve el foco. Sin JavaScript cada tarjeta abre YouTube. Accesos directos a YouTube y Facebook. Desplazamiento horizontal en móviles. Selección en social-videos.json.
