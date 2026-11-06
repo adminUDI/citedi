@@ -57,3 +57,7 @@ Para construir el Worker, ejecuta `npm run build`. La base de datos local aplica
 En **Carrusel y avisos** (`/admin/carrusel`) se administran hasta ocho imágenes y cuatro avisos rotativos. Permite subir imágenes PNG, JPEG, WebP o GIF de hasta 5 MB, elegir imágenes del portal, editar textos y enlaces, ordenar diapositivas y ajustar el intervalo entre 4 y 30 segundos y la transición. El editor guarda borradores y consulta la vista previa; el administrador publica.
 
 Las imágenes nuevas se guardan en `data/home-media/` al ejecutar Node.js y en R2 al publicar en Sites. La configuración y sus revisiones se guardan en la base de datos con `drizzle/0003_home_motion.sql`. Los controles admiten teclado, pausa y gestos táctiles. El movimiento automático respeta la preferencia de movimiento reducido del dispositivo.
+
+## Agenda, videos y pie institucional
+
+La portada incorpora los videos originales de Maestría (`rK5lmU75Wtk`) y Doctorado (`83WbOyWO2ag`), con reproductores adaptables de YouTube. La Agenda Politécnica tiene cinco pestañas y 17 imágenes recuperadas del portal institucional. `portal-reference.json` conserva esta copia de la agenda; no se actualiza automáticamente. Los recursos visuales, la cenefa de Gobierno de México y la tipografía Red Hat Display se sirven desde `assets/`. Los logos, publicaciones y textos institucionales conservan sus derechos de origen.
