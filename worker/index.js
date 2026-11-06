@@ -24,10 +24,12 @@ const groups = [
   ]],
   ['Oferta educativa', [
     ['masters','Título de maestría','Maestría en Ciencias en Sistemas Digitales'],
-    ['mastersText','Descripción de maestría','Desarrolla soluciones científicas y tecnológicas a través de la investigación aplicada.', 350],
+    ['mastersText','Descripción de maestría',"Formamos profesionales de posgrado de alta calidad para contribuir a solucionar las necesidades de la sociedad.",350],
+    ['mastersObjective','Objetivo de maestría',"El programa tiene como objetivo formar profesionistas productivos con alto nivel académico capaces de realizar actividades de investigación científica y desarrollo tecnológico significativos para la sociedad, en sus Líneas de Generación y Aplicación del Conocimiento.",700,'multiline'],
     ['mastersLink','Enlace de maestría',offer + 'maestria-sistemas-digitales/',500,'url'],
     ['doctorate','Título de doctorado','Doctorado en Ciencias en Sistemas Digitales'],
-    ['doctorateText','Descripción de doctorado','Genera conocimiento original y lidera proyectos de investigación en tecnologías emergentes.',350],
+    ['doctorateText','Descripción de doctorado',"Formamos científicos de alta calidad para contribuir en la construcción de conocimiento de frontera.",350],
+    ['doctorateObjective','Objetivo de doctorado',"El programa tiene como objetivo formar investigadores con perfil de liderazgo y de competencia internacional que favorezcan la creación de un conocimiento original e innovador en tecnologías actuales y emergentes a efecto de impulsar el desarrollo científico y tecnológico que requiere el país.",700,'multiline'],
     ['doctorateLink','Enlace de doctorado',offer + 'doctorado-sistemas-digitales/',500,'url']
   ]],
   ['Agenda y contacto', [
@@ -92,8 +94,9 @@ const footer = institutionalFooter(html);
 function navigation(content) {
   return migratedNavigation(html);
 }
+function normalizePrograms(content) { const value={...content};if(value.mastersText==='Desarrolla soluciones científicas y tecnológicas a través de la investigación aplicada.')value.mastersText=initial.mastersText;if(value.doctorateText==='Genera conocimiento original y lidera proyectos de investigación en tecnologías emergentes.')value.doctorateText=initial.doctorateText;return value;}
 function home(content, preview = false, updates = [], motion) {
-  const c = {...initial,...content};
+  const c = {...initial,...normalizePrograms(content)};
   for (const key of ['mastersLink','doctorateLink','noticeLink','contactLink']) c[key]=portalTarget(c[key]);
   const programs=[['01','Maestría','masters'],['02','Doctorado','doctorate']];
   const shortcuts=[
@@ -103,7 +106,7 @@ function home(content, preview = false, updates = [], motion) {
     ['Programas','#oferta','Maestría y doctorado']
   ];
   const programCards=programs.map(([number,label,key])=>
-    '<article class="program" data-reveal><div class="program-top"><span>'+label.toUpperCase()+'</span><span class="program-number">'+number+'</span></div><h3>'+html(c[key])+'</h3><p>'+html(c[key+'Text'])+'</p>'+programVideo(key)+link(c[key+'Link'],'Conocer el programa','text-link')+'</article>'
+    '<article class="program" data-reveal><h3>'+html(c[key])+'</h3><p>'+html(c[key+'Text'])+'</p><p class="program-objective">'+html(c[key+'Objective'])+'</p>'+programVideo(key)+link(c[key+'Link'],'Conocer el programa','text-link')+'</article>'
   ).join('');
   const researchTopics=[
     ['01','Sistemas dinámicos y control','sdycte'],
@@ -131,7 +134,7 @@ function authForm(setup, error = '', status = 200) {
 const alert = (message, okay = false) => message ? '<p role="status" class="alert ' + (okay ? 'success' : '') + '">' + html(message) + '</p>' : '';
 function panel(user,state,accounts,message = '',status = 200) {
   const admin = user.role === 'admin';
-  const draft = {...initial,...JSON.parse(state.draft)};
+  const draft = {...initial,...normalizePrograms(JSON.parse(state.draft))};
   const accountSection = admin ? '<section id="usuarios" class="editor-box"><h2>Usuarios</h2><div class="accounts">' +
     accounts.map(account => '<div><span><strong>' + html(account.name) + '</strong><small>' + html(account.email) + ' · ' + (account.role === 'admin' ? 'Administrador' : account.active ? 'Editor activo' : 'Editor desactivado') + '</small></span>' +
       (account.role === 'editor' ? '<form method="post" action="/admin/accounts/status"><input type="hidden" name="email" value="' + html(account.email) + '"><input type="hidden" name="active" value="' + (account.active ? 0 : 1) + '"><button class="button secondary">' + (account.active ? 'Desactivar' : 'Activar') + '</button></form>' : '') + '</div>').join('') +
@@ -139,7 +142,7 @@ function panel(user,state,accounts,message = '',status = 200) {
   return page('Gestor de contenidos','<div class="utility"><div class="wrap"><span>GESTOR DE CONTENIDOS</span><a href="/">Ver portal ↗</a></div></div><header class="wrap header">' + brand +
     '<form method="post" action="/logout"><button class="button secondary">Cerrar sesión</button></form></header><main class="wrap dashboard" id="contenido"><aside><small>ESPACIO EDITORIAL</small><strong>' + html(user.name) + '</strong><p>' + (admin ? 'Administrador' : 'Editor') + '</p><a href="#editor">Portada</a><a href="/admin/carrusel">Carrusel y avisos</a><a href="/admin/contenidos">Páginas y publicaciones</a>' + (admin ? '<a href="#usuarios">Usuarios</a><a href="/admin/academico">AdmAcademic</a><a href="/admin/mensajes">Mensajes recibidos</a>' : '') + '<a href="#cuenta">Mi contraseña</a></aside><div class="editor"><div class="eyebrow"><span></span> CONTENIDO DEL PORTAL</div><h1>Editar portada</h1><p>Completa los campos de la página y revisa el borrador antes de publicar.</p>' +
     alert(message,status === 200) + '<div id="editor" class="editor-toolbar"><strong>' + (state.draft === state.published ? 'Sin cambios pendientes' : 'Borrador pendiente de publicación') + '</strong><a href="/admin/preview" target="_blank" rel="noopener">Vista previa ↗</a></div><form method="post" action="/admin/home"><input type="hidden" name="revision" value="' + state.revision + '">' +
-    groups.map(([title,entries]) => '<fieldset class="editor-box"><legend>' + title + '</legend>' + entries.map(([key,label,,limit = 160,kind]) => '<label>' + label + (limit === 350 ? '<textarea name="' + key + '" required maxlength="' + limit + '" rows="3">' + html(draft[key]) + '</textarea>' : '<input name="' + key + '" value="' + html(draft[key]) + '" maxlength="' + limit + '"' + (kind === 'optional' ? '' : ' required') + '></label>')).map(field => field.endsWith('</label>') ? field : field + '</label>').join('') + '</fieldset>').join('') +
+    groups.map(([title,entries]) => '<fieldset class="editor-box"><legend>' + title + '</legend>' + entries.map(([key,label,,limit = 160,kind]) => '<label>' + label + ((limit === 350 || kind === 'multiline') ? '<textarea name="' + key + '" required maxlength="' + limit + '" rows="3">' + html(draft[key]) + '</textarea>' : '<input name="' + key + '" value="' + html(draft[key]) + '" maxlength="' + limit + '"' + (kind === 'optional' ? '' : ' required') + '></label>')).map(field => field.endsWith('</label>') ? field : field + '</label>').join('') + '</fieldset>').join('') +
     '<div class="actions editor-actions"><button class="button secondary" name="action" value="save">Guardar borrador</button>' + (admin ? '<button class="button primary" name="action" value="publish">Publicar cambios</button>' : '') + '</div></form>' + accountSection +
     '<section id="cuenta" class="editor-box"><h2>Mi contraseña</h2><form class="new-account" method="post" action="/admin/password">' + input('current','Contraseña actual','password','autocomplete="current-password" maxlength="128"') + input('password','Nueva contraseña','password','autocomplete="new-password" minlength="12" maxlength="128"') + '<button class="button secondary">Actualizar contraseña</button></form></section></div></main>',status);
 }
