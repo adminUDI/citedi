@@ -72,3 +72,6 @@ Franja compacta debajo de eventos y noticias con cuatro tarjetas: tres grabacion
 
 ## Contacto y campus
 Botón flotante guinda abre el formulario existente en la portada; los mensajes siguen llegando a /admin/mensajes. En páginas interiores enlaza a /contacto. Botón verde de volver arriba. Accesos de comunidad encima del menú y casita de inicio. Collage con fotografías oficiales: https://www.citedi.ipn.mx/conocenos/instalaciones/biblioteca.html , deportiva.html y laboratorios.html; archivos locales campus-library.jpg, campus-gardens.jpg, campus-lab.jpg, además del edificio campus.jpg.
+
+## Franja unificada
+El video institucional se reproduce una vez y el evento ENDED de la API oficial de YouTube muestra los banners del CMS en el mismo espacio. Botones para alternar entre video y avisos; se eliminó el bloque separado. El carrusel reinicia al activarse y se pausa mientras está oculto. YouTube controla la calidad adaptativa; la API no permite fijar 1080p. Reproductor completo conserva sus controles de calidad.

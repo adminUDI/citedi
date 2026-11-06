@@ -22,7 +22,7 @@
     function schedule() {
       clearTimeout(timer);
       if (slides.length > 1 && automatic && !paused && !hovering &&
-          !reducedMotion.matches && !document.hidden && !carousel.contains(document.activeElement)) {
+          !reducedMotion.matches && !document.hidden && !carousel.closest('[hidden]') && !carousel.contains(document.activeElement)) {
         timer = setTimeout(() => show(index + 1, false), seconds * 1000);
       }
     }
@@ -71,6 +71,7 @@
       if (Math.abs(distance) > 45) show(index + (distance < 0 ? 1 : -1));
       pointerStart = null;
     });
+    carousel.addEventListener('portal:activate',()=>show(0,false));
     document.addEventListener('visibilitychange', schedule);
     reducedMotion.addEventListener('change', () => { updatePause(); schedule(); });
     updatePause();
@@ -178,9 +179,15 @@ for(const section of document.querySelectorAll('.social-strip')){
 
 for(const opener of document.querySelectorAll('[data-contact-open]')){const dialog=document.getElementById('contact-dialog');if(!dialog?.showModal)continue;opener.addEventListener('click',event=>{if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();dialog.showModal();});dialog.querySelector('[data-contact-close]').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>opener.focus());}
 
-for(const hero of document.querySelectorAll('[data-institutional-hero]')){
- const bg=hero.querySelector('.institutional-video-background'),toggle=hero.querySelector('[data-institutional-toggle]'),watch=hero.querySelector('[data-institutional-watch]'),dialog=hero.querySelector('dialog'),slot=dialog.querySelector('.social-dialog-player');const en=document.documentElement.lang==='en';let running=false;
- const background=play=>{bg.replaceChildren();running=play;if(play){const frame=document.createElement('iframe');frame.src='https://www.youtube-nocookie.com/embed/MkoRxT--yC4?autoplay=1&mute=1&controls=0&loop=1&playlist=MkoRxT--yC4&playsinline=1&disablekb=1';frame.title=en?'CITEDI institutional background video':'Video institucional de fondo del CITEDI';frame.allow='autoplay; encrypted-media';frame.tabIndex=-1;bg.append(frame);}toggle.textContent=play?(en?'Pause background video':'Pausar video de fondo'):(en?'Play background video':'Reproducir video de fondo');toggle.setAttribute('aria-pressed',String(!play));};
- toggle.hidden=false;toggle.addEventListener('click',()=>background(!running));if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!navigator.connection?.saveData&&matchMedia('(min-width: 761px)').matches)background(true);else background(false);
- watch.addEventListener('click',event=>{if(!dialog.showModal||event.ctrlKey||event.metaKey||event.shiftKey)return;event.preventDefault();background(false);const frame=document.createElement('iframe');frame.src='https://www.youtube-nocookie.com/embed/MkoRxT--yC4?autoplay=1';frame.title=en?'Discover CITEDI IPN':'Conoce al CITEDI IPN';frame.allow='autoplay; encrypted-media; picture-in-picture';frame.allowFullscreen=true;slot.replaceChildren(frame);dialog.showModal();});dialog.querySelector('[data-hero-close]').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>{slot.replaceChildren();watch.focus();});
+// Use YouTube's official player state events to switch from video to notices.
+let institutionalApi;
+function youtubeReady(){if(window.YT?.Player)return Promise.resolve(window.YT);if(institutionalApi)return institutionalApi;institutionalApi=new Promise((resolve,reject)=>{window.onYouTubeIframeAPIReady=()=>resolve(window.YT);const script=document.createElement('script');script.src='https://www.youtube.com/iframe_api';script.onerror=()=>reject(new Error('Video unavailable'));document.head.append(script);});return institutionalApi;}
+for(const stage of document.querySelectorAll('[data-unified-feature]')){
+ const hero=stage.querySelector('[data-institutional-hero]'),video=stage.querySelector('[data-unified-video]'),banners=stage.querySelector('[data-unified-banners]'),bg=hero.querySelector('.institutional-video-background'),toggle=hero.querySelector('[data-institutional-toggle]'),watch=hero.querySelector('[data-institutional-watch]'),dialog=hero.querySelector('dialog'),slot=dialog.querySelector('.social-dialog-player'),videoButton=stage.querySelector('[data-show-video]'),bannerButton=stage.querySelector('[data-show-banners]'),status=stage.querySelector('[data-feature-status]');const en=document.documentElement.lang==='en';let player,modalPlayer,loading=false;
+ const mode=showVideo=>{video.hidden=!showVideo;banners.hidden=showVideo;videoButton.setAttribute('aria-pressed',String(showVideo));bannerButton.setAttribute('aria-pressed',String(!showVideo));if(!showVideo){player?.pauseVideo();banners.querySelector('[data-carousel]')?.dispatchEvent(new Event('portal:activate'));}status.textContent=showVideo?(en?'Institutional video':'Video institucional'):(en?'Featured notices':'Avisos destacados');};
+ const ended=()=>{stage.dataset.videoCompleted='true';if(dialog.open)dialog.close();mode(false);};
+ async function playBackground(){if(loading)return;mode(true);if(player){if(player.getPlayerState()===0)player.seekTo(0,true);player.playVideo();return;}loading=true;try{const YT=await youtubeReady();const mount=document.createElement('div');bg.append(mount);player=new YT.Player(mount,{host:'https://www.youtube-nocookie.com',width:'1920',height:'1080',videoId:'MkoRxT--yC4',playerVars:{autoplay:1,mute:1,controls:0,playsinline:1,rel:0,origin:location.origin},events:{onReady:e=>{e.target.mute();if(video.hidden)e.target.pauseVideo();else e.target.playVideo();},onStateChange:e=>{if(e.data===YT.PlayerState.ENDED)ended();toggle.textContent=e.data===YT.PlayerState.PLAYING?(en?'Pause background video':'Pausar video de fondo'):(en?'Play background video':'Reproducir video de fondo');toggle.setAttribute('aria-pressed',String(e.data!==YT.PlayerState.PLAYING));},onError:()=>{toggle.hidden=true;mode(false);}}});}catch(error){console.warn("Institutional player:",error.message);toggle.hidden=true;mode(false);institutionalApi=undefined;}finally{loading=false;}}
+ toggle.hidden=false;toggle.addEventListener('click',()=>{if(player?.getPlayerState()===1)player.pauseVideo();else playBackground();});bannerButton.addEventListener('click',()=>mode(false));videoButton.addEventListener('click',()=>playBackground());
+ watch.addEventListener('click',async event=>{if(!dialog.showModal||event.ctrlKey||event.metaKey||event.shiftKey)return;event.preventDefault();player?.pauseVideo();dialog.showModal();try{const YT=await youtubeReady();if(!dialog.open)return;const mount=document.createElement('div');slot.replaceChildren(mount);modalPlayer=new YT.Player(mount,{host:'https://www.youtube-nocookie.com',width:'1920',height:'1080',videoId:'MkoRxT--yC4',playerVars:{autoplay:1,controls:1,playsinline:1,rel:0,origin:location.origin},events:{onStateChange:e=>{if(e.data===YT.PlayerState.ENDED)ended();}}});}catch{dialog.close();mode(false);}});dialog.querySelector('[data-hero-close]').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>{modalPlayer?.destroy();modalPlayer=undefined;slot.replaceChildren();if(!video.hidden)watch.focus();});
+ if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!navigator.connection?.saveData&&matchMedia('(min-width: 761px)').matches)playBackground();else toggle.textContent=en?'Play background video':'Reproducir video de fondo';
 }

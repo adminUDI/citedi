@@ -64,7 +64,7 @@ function equal(a,b) {
   return difference === 0;
 }
 const headers = {
-  'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; frame-src https://www.google.com https://www.youtube-nocookie.com https://www.facebook.com; font-src 'self'; style-src 'self'; img-src 'self' https:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+  'Content-Security-Policy': "default-src 'none'; script-src 'self' https://www.youtube.com https://s.ytimg.com; connect-src 'self'; frame-src https://www.google.com https://www.youtube-nocookie.com https://www.facebook.com; font-src 'self'; style-src 'self'; img-src 'self' https:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
   'Referrer-Policy':'strict-origin-when-cross-origin',
   'X-Content-Type-Options':'nosniff',
   'Cache-Control':'no-store'

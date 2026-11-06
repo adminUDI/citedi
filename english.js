@@ -1,4 +1,5 @@
 const words={
+ 'Video institucional':'Institutional video','Avisos destacados':'Featured notices',
  'Programas de posgrado':'Graduate programs','Consulta la Agenda Politécnica ↗':'View the Polytechnic agenda ↗',
  'Ciencia que transforma.':'Science that transforms.','Tecnología que conecta.':'Technology that connects.','Investigación, innovación y formación de posgrado en sistemas digitales desde Tijuana para el mundo.':'Research, innovation and graduate education in digital systems from Tijuana to the world.','Conoce nuestros posgrados':'Explore our graduate programs','▶ Ver video institucional':'▶ Watch institutional video','Conoce al CITEDI IPN':'Discover CITEDI IPN','Pausar video de fondo':'Pause background video','Video institucional del CITEDI':'CITEDI institutional video',
  'Campus CITEDI Tijuana':'CITEDI Tijuana campus','Conoce nuestro campus ↗':'Explore our campus ↗','Contáctanos':'Contact us','Cerrar formulario':'Close form','Volver arriba':'Back to top',
