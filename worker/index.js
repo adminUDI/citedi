@@ -1,3 +1,5 @@
+import {visualShortcuts,visualResearch} from '../visual-sections.js';
+import quickPages from '../quick-pages.json' with {type:'json'};
 import {citediStatistics} from '../citedi-statistics.js';
 import {portalHeader} from '../portal-header.js';
 import {englishResponse,englishPages} from '../english.js';
@@ -9,7 +11,7 @@ const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
 const bundledAssets = {};
 const assetTypes = {'campus.jpg':'image/jpeg','ipn.png':'image/png','citedi.png':'image/png'};
-const homeAssetTypes={'language-ipn.png':'image/png','header-education.svg':'image/svg+xml','header-ipn.svg':'image/svg+xml',...referenceTypes,'home-client.js':'text/javascript; charset=utf-8','home-enhancements.css':'text/css; charset=utf-8'};
+const homeAssetTypes={...quickPages.types,'language-ipn.png':'image/png','header-education.svg':'image/svg+xml','header-ipn.svg':'image/svg+xml',...referenceTypes,'home-client.js':'text/javascript; charset=utf-8','home-enhancements.css':'text/css; charset=utf-8'};
 const academicIconTypes = {'academic-thesis.png':'image/png','academic-registroTesis.png':'image/png','academic-tabs-syllabus-lab.png':'image/png','academic-cv.png':'image/png','academic-contact.png':'image/png','academic-graduates.png':'image/png','academic-evaluaciondocente.png':'image/png','academic-projects.png':'image/png','academic-papers.png':'image/png','academic-agreements.png':'image/png','academic-icon-oportunities.png':'image/png','academic-events.png':'image/png','academic-news.png':'image/png','academic-icon-ds.png':'image/png','academic-certificate.png':'image/png','academic-vue.gif':'image/gif','academic-focusgroup.png':'image/png','academic-gpr.png':'image/png','academic-sipot.png':'image/png','academic-viaticos.png':'image/png','academic-requisiciones.png':'image/png','academic-bolsa-de-la-compra.png':'image/png'};
 const groups = [
   ['Presentación', [
@@ -112,9 +114,9 @@ function home(content, preview = false, updates = [], motion) {
     portalHeader()+navigation(c)+
     '<main id="contenido" class="home-main">'+renderFeature(c,motion,html)+renderNotice(motion,html)+
     citediStatistics()+
-    '<section class="shortcuts" aria-label="Accesos rápidos"><div class="wrap">'+shortcuts.map(([title,url,text],index)=>'<a href="'+html(url)+'"><span class="shortcut-number">0'+(index+1)+'</span><span><strong>'+title+'</strong><small>'+text+'</small></span><span aria-hidden="true">↗</span></a>').join('')+'</div></section>'+
+    visualShortcuts()+
     '<section class="wrap section" id="oferta" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> CONSTRUYE TU SIGUIENTE ETAPA</div><h2>Oferta educativa</h2></div><p>Formación de posgrado en sistemas digitales, investigación y desarrollo tecnológico.</p></div><div class="programs">'+programCards+'</div></section>'+
-    '<section id="investigacion" class="home-research"><div class="wrap section split" data-reveal><div><div class="eyebrow"><span></span> CONOCIMIENTO QUE SE TRANSFORMA</div><h2>Investigación</h2><p>'+html(c.researchText)+'</p>'+link('/investigacion','Explorar la investigación','button primary')+'</div><div class="research-topics">'+researchTopics+'</div></div></section>'+
+    visualResearch(c,html)+
     agendaSection(html)+portalExtras(html,updates)+
     contactSection(c,html,contactForm)+'</main>'+footer);
 }

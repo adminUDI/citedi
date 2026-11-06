@@ -1,9 +1,10 @@
+import quickPages from './quick-pages.json' with {type:'json'};
 import {sustainabilityCarousel} from './sustainability-carousel.js';
 import {portalHeader,searchCorner} from './portal-header.js';
 import sanitizeHtml from 'sanitize-html';
 import seed from './portal-seed.json' with {type:'json'};
 
-const sourceDocuments = new Map(seed.documents.map(document => [document.id,document]));
+const sourceDocuments = new Map([...seed.documents,...quickPages.documents].map(document => [document.id,document]));
 export function portalTarget(value) {
   const targets={
     'https://www.citedi.ipn.mx/oferta-educativa-citedi-ipn/maestria-sistemas-digitales/':'/maestria',
@@ -136,13 +137,14 @@ export async function portalPublic(path,method,form,url,sql,context) {
   const document=await documentById(id,sql);
   if(!document)return null;
   const displayBody=id==='sustentabilidad'?sustainabilityCarousel(document.body,html):document.body;
-  let body='<div class="portal-body">'+displayBody+'</div>';
+  let body='<div class="portal-body'+(quickPages.documents.some(d=>d.id===id)?' replica-page':'')+'">'+displayBody+'</div>';
   const programHost=/^https?:\/\/(maestria|doctorado)\.citedi\.mx/.exec(document.source||'')?.[1];
   if(programHost) {
     const related=seed.documents.filter(d=>d.kind==='page'&&d.source.startsWith('https://'+programHost+'.citedi.mx/'));
     body='<details class="program-index"><summary>Secciones del programa</summary><ul>'+related.map(d=>'<li><a href="/'+html(d.id)+'">'+html(d.title)+'</a></li>').join('')+'</ul></details>'+body;
   }
   if(['contacto','conocenos'].includes(id))body+=contactForm('contact',html);
+  if(id==='egresados')body+=contactForm('contact',html).replace('Escríbenos','Solicitud de actualización de datos de egresados');
   if(['eventos','eventos-historial','noticias','convocatorias'].includes(id)) {
     const kind={eventos:'event','eventos-historial':'event',noticias:'news',convocatorias:'call'}[id];
     const today=new Date().toISOString().slice(0,10);
