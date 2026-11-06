@@ -8,6 +8,24 @@
           "image": "/assets/agenda-0-0.jpg",
           "url": "https://www.admision.ipn.mx/portal/index.html",
           "date": "30, Oct 2026"
+        },
+        {
+          "title": "Convocatoria 10/2026",
+          "url": "https://www.ipn.mx/dch/personaldemando/convocatorias.html",
+          "image": "/assets/agenda-added-0.jpg",
+          "date": "3, Nov 2026"
+        },
+        {
+          "title": "Convocatoria 11/2026",
+          "url": "https://www.ipn.mx/dch/personaldemando/convocatorias.html",
+          "image": "/assets/agenda-added-1.jpg",
+          "date": "3, Nov 2026"
+        },
+        {
+          "title": "Transmisión 1a Sesion Extraordinaria",
+          "url": "https://www.youtube.com/live/OPaQLs0nZjk?si=0qv3Ozlt3vQB--z4",
+          "image": "/assets/agenda-added-2.jpg",
+          "date": "29, Oct 2026"
         }
       ]
     },
@@ -25,6 +43,12 @@
           "image": "/assets/agenda-1-1.png",
           "url": "https://iadministrativa.escasto.ipn.mx/index.php/IA/index",
           "date": "3, Nov 2026"
+        },
+        {
+          "title": "Gaceta Extraordinaria 1986",
+          "url": "https://www.ipn.mx/assets/files/imageninstitucional/docs/gaceta-extraordinaria/2026/09/g-extra-1986.pdf",
+          "image": "/assets/agenda-added-3.webp",
+          "date": "30, Sep 2026"
         }
       ]
     },
@@ -238,6 +262,10 @@
     "red-hat-display-3.woff2": "font/ttf",
     "red-hat-display-4.woff2": "font/ttf",
     "red-hat-display-5.woff2": "font/ttf",
-    "reference-font.css": "text/css; charset=utf-8"
+    "reference-font.css": "text/css; charset=utf-8",
+    "agenda-added-0.jpg": "image/jpeg",
+    "agenda-added-1.jpg": "image/jpeg",
+    "agenda-added-2.jpg": "image/jpeg",
+    "agenda-added-3.webp": "image/webp"
   }
 }
