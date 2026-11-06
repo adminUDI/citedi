@@ -52,7 +52,7 @@ export function cleanPortalBody(body) {
 }
 export function portalExtras(html,updates=[]) {
   return communityNews(html,updates)+
-    '<section class="institutional-hub" id="comunidad-institucional" aria-labelledby="institutional-hub-title"><div class="wrap institutional-hub-heading"><div><div class="eyebrow">COMUNIDAD Y COMPROMISO</div><h2 id="institutional-hub-title">Enlaces de interés institucional</h2></div><p>Recursos para una comunidad informada, participativa y comprometida.</p></div><div class="wrap institutional-links">' + seed.homeLinks.map(item =>
+    '<section class="institutional-hub" id="comunidad-institucional" aria-labelledby="institutional-hub-title"><div class="wrap institutional-hub-heading"><div><div class="eyebrow">COMUNIDAD Y COMPROMISO</div><h2 id="institutional-hub-title">Enlaces de interés institucional</h2></div></div><div class="wrap institutional-links">' + seed.homeLinks.map(item =>
       '<a href="' + html(item.url) + '"><img src="' + html(item.image) + '" alt="' + html(item.title) + '" loading="lazy"><span>' + html(item.title) + '</span><span class="institutional-card-arrow" aria-hidden="true">↗</span></a>').join('') + '</div></section>';
 }
 export async function portalHomeUpdates(sql) {
