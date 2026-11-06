@@ -1,3 +1,4 @@
+import {referenceTypes,programVideo,agendaSection,institutionalFooter} from '../institutional-reference.js';
 import {socialIcons,contactSection} from '../portal-design.js';
 import {contactForm,migratedNavigation,portalExtras,portalHomeUpdates,portalMedia,portalPublic,portalAdmin,portalTarget} from '../portal.js';
 import {readMotion,renderFeature,renderNotice,motionAdmin,uploadMotionImage,uploadedMotionImage} from '../home-motion.js';
@@ -5,7 +6,7 @@ const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
 const bundledAssets = {};
 const assetTypes = {'campus.jpg':'image/jpeg','ipn.png':'image/png','citedi.png':'image/png'};
-const homeAssetTypes={'home-client.js':'text/javascript; charset=utf-8','home-enhancements.css':'text/css; charset=utf-8'};
+const homeAssetTypes={...referenceTypes,'home-client.js':'text/javascript; charset=utf-8','home-enhancements.css':'text/css; charset=utf-8'};
 const academicIconTypes = {'academic-thesis.png':'image/png','academic-registroTesis.png':'image/png','academic-tabs-syllabus-lab.png':'image/png','academic-cv.png':'image/png','academic-contact.png':'image/png','academic-graduates.png':'image/png','academic-evaluaciondocente.png':'image/png','academic-projects.png':'image/png','academic-papers.png':'image/png','academic-agreements.png':'image/png','academic-icon-oportunities.png':'image/png','academic-events.png':'image/png','academic-news.png':'image/png','academic-icon-ds.png':'image/png','academic-certificate.png':'image/png','academic-vue.gif':'image/gif','academic-focusgroup.png':'image/png','academic-gpr.png':'image/png','academic-sipot.png':'image/png','academic-viaticos.png':'image/png','academic-requisiciones.png':'image/png','academic-bolsa-de-la-compra.png':'image/png'};
 const groups = [
   ['Presentación', [
@@ -55,7 +56,7 @@ function equal(a,b) {
   return difference === 0;
 }
 const headers = {
-  'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; frame-src https://www.google.com; style-src 'self'; img-src 'self' https:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+  'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; frame-src https://www.google.com https://www.youtube-nocookie.com; font-src 'self'; style-src 'self'; img-src 'self' https:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
   'Referrer-Policy':'strict-origin-when-cross-origin',
   'X-Content-Type-Options':'nosniff',
   'Cache-Control':'no-store'
@@ -63,7 +64,7 @@ const headers = {
 const redirect = (to,cookie) => new Response(null,{status:303,headers:{...headers,Location:to,...(cookie ? {'Set-Cookie':cookie} : {})}});
 const cookie = (url,value,age) => 'citedi_session=' + value + '; Path=/; HttpOnly; SameSite=Lax; Max-Age=' + age + (url.protocol === 'https:' ? '; Secure' : '');
 function page(title, body, status = 200) {
-  return new Response('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Portal académico del Centro de Investigación y Desarrollo de Tecnología Digital"><title>' + html(title) + ' · CITEDI</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/assets/home-enhancements.css"><script src="/assets/home-client.js" defer></script></head><body><a class="skip" href="#contenido">Ir al contenido</a>' + body + '</body></html>',{status,headers:{...headers,'Content-Type':'text/html; charset=utf-8'}});
+  return new Response('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Portal académico del Centro de Investigación y Desarrollo de Tecnología Digital"><title>' + html(title) + ' · CITEDI</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/assets/reference-font.css"><link rel="stylesheet" href="/assets/home-enhancements.css"><script src="/assets/home-client.js" defer></script></head><body><a class="skip" href="#contenido">Ir al contenido</a>' + body + '</body></html>',{status,headers:{...headers,'Content-Type':'text/html; charset=utf-8'}});
 }
 const link = (url,label,classes = '') => '<a class="' + classes + '" href="' + html(url) + '">' + html(label) + ' <span aria-hidden="true">↗</span></a>';
 const input = (name,label,type = 'text',attributes = '') => '<label>' + label + '<input name="' + name + '" type="' + type + '" required ' + attributes + '></label>';
@@ -81,7 +82,7 @@ const socialLinks = [
   ['Instagram','https://www.instagram.com/citedi_ipn/'],
   ['YouTube','https://www.youtube.com/user/citediipn']
 ];
-const footer = '<footer><div class="wrap footer"><div><strong>Instituto Politécnico Nacional</strong><p>Centro de Investigación y Desarrollo de Tecnología Digital</p></div><div><strong>Redes sociales</strong><div class="social-links">' + socialIcons() + '</div></div><div><a href="' + ipn + '/">Sitio oficial CITEDI IPN ↗</a><br><a href="/admin">Gestor de contenidos ↗</a></div></div></footer>';
+const footer = institutionalFooter(html);
 function navigation(content) {
   return migratedNavigation(html);
 }
@@ -96,7 +97,7 @@ function home(content, preview = false, updates = [], motion) {
     ['Programas','#oferta','Maestría y doctorado']
   ];
   const programCards=programs.map(([number,label,key])=>
-    '<article class="program" data-reveal><div class="program-top"><span>'+label.toUpperCase()+'</span><span class="program-number">'+number+'</span></div><h3>'+html(c[key])+'</h3><p>'+html(c[key+'Text'])+'</p>'+link(c[key+'Link'],'Conocer el programa','text-link')+'</article>'
+    '<article class="program" data-reveal><div class="program-top"><span>'+label.toUpperCase()+'</span><span class="program-number">'+number+'</span></div><h3>'+html(c[key])+'</h3><p>'+html(c[key+'Text'])+'</p>'+programVideo(key)+link(c[key+'Link'],'Conocer el programa','text-link')+'</article>'
   ).join('');
   const researchTopics=[
     ['01','Sistemas dinámicos y control','sdycte'],
@@ -112,7 +113,7 @@ function home(content, preview = false, updates = [], motion) {
     '<section class="shortcuts" aria-label="Accesos rápidos"><div class="wrap">'+shortcuts.map(([title,url,text],index)=>'<a href="'+html(url)+'"><span class="shortcut-number">0'+(index+1)+'</span><span><strong>'+title+'</strong><small>'+text+'</small></span><span aria-hidden="true">↗</span></a>').join('')+'</div></section>'+
     '<section class="wrap section" id="oferta" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> CONSTRUYE TU SIGUIENTE ETAPA</div><h2>Oferta educativa</h2></div><p>Formación de posgrado en sistemas digitales, investigación y desarrollo tecnológico.</p></div><div class="programs">'+programCards+'</div></section>'+
     '<section id="investigacion" class="home-research"><div class="wrap section split" data-reveal><div><div class="eyebrow"><span></span> CONOCIMIENTO QUE SE TRANSFORMA</div><h2>Investigación</h2><p>'+html(c.researchText)+'</p>'+link('/investigacion','Explorar la investigación','button primary')+'</div><div class="research-topics">'+researchTopics+'</div></div></section>'+
-    portalExtras(html,updates)+
+    agendaSection(html)+portalExtras(html,updates)+
     contactSection(c,html,contactForm)+'</main>'+footer);
 }
 function authForm(setup, error = '', status = 200) {

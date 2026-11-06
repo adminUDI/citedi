@@ -1,0 +1,242 @@
+{
+  "agenda": [
+    {
+      "category": "Institucional",
+      "items": [
+        {
+          "title": "Proceso de Admisión IPN 2026-2027",
+          "image": "/assets/agenda-0-0.jpg",
+          "url": "https://www.admision.ipn.mx/portal/index.html",
+          "date": "30, Oct 2026"
+        }
+      ]
+    },
+    {
+      "category": "Publicaciones",
+      "items": [
+        {
+          "title": "Brújula Verde 8va edición",
+          "image": "/assets/agenda-1-0.webp",
+          "url": "https://www.ipn.mx/sustentabilidad/brujulaverde.html",
+          "date": "30, Nov 2026"
+        },
+        {
+          "title": "Investigación Administrativa 138",
+          "image": "/assets/agenda-1-1.png",
+          "url": "https://iadministrativa.escasto.ipn.mx/index.php/IA/index",
+          "date": "3, Nov 2026"
+        }
+      ]
+    },
+    {
+      "category": "Investigación",
+      "items": [
+        {
+          "title": "Científicos IPN",
+          "image": "/assets/agenda-2-0.jpg",
+          "url": "https://www.ipn.mx/gacetas/cientificos.html",
+          "date": "3, Nov 2026"
+        },
+        {
+          "title": "Revista Horizontes",
+          "image": "/assets/agenda-2-1.webp",
+          "url": "https://www.ipn.mx/investigacion/ciencia-abierta/revistas-ipn.html",
+          "date": "3, Nov 2026"
+        },
+        {
+          "title": "Colabora SIP",
+          "image": "/assets/agenda-2-2.webp",
+          "url": "https://www.ipn.mx/investigacion/estrategia-ipn/nuestros-investigadores.html",
+          "date": "3, Nov 2026"
+        },
+        {
+          "title": "Programa EDI 2026",
+          "image": "/assets/agenda-2-3.webp",
+          "url": "https://www.ipn.mx/investigacion/convocatorias-apoyos/estimulos/edi.html",
+          "date": "2, Nov 2026"
+        }
+      ]
+    },
+    {
+      "category": "Difusión",
+      "items": [
+        {
+          "title": "5º Coloquio de la Red de los Seminarios Repensar",
+          "image": "/assets/agenda-3-0.webp",
+          "url": "https://rsr.dfie.ipn.mx/public/",
+          "date": "30, Nov 2026"
+        },
+        {
+          "title": "Encuesta Transversal NMS",
+          "image": "/assets/agenda-3-1.webp",
+          "url": "https://forms.cloud.microsoft/pages/responsepage.aspx?id=2fRL-ZeAlEet9qVGbKKFYwz567ZWhF9LlJTvsUlAgL1UNTdRNldVOFJNNkQ3UUVPQlEwUTdPOTg5NCQlQCN0PWcu&route=shorturl",
+          "date": "30, Nov 2026"
+        },
+        {
+          "title": "Encuesta Transversal NS",
+          "image": "/assets/agenda-3-2.webp",
+          "url": "https://forms.cloud.microsoft/pages/responsepage.aspx?id=2fRL-ZeAlEet9qVGbKKFYwz567ZWhF9LlJTvsUlAgL1UMUZNQ0hOSkQ4R0lFMzBUVkNTRDRQRU1SUyQlQCN0PWcu&route=shorturl",
+          "date": "30, Nov 2026"
+        },
+        {
+          "title": "QETTCON II – II Quantum and Electromagnetic Phenomena Conferences",
+          "image": "/assets/agenda-3-3.webp",
+          "url": "https://sites.google.com/view/qettcon2026/",
+          "date": "10, Nov 2026"
+        },
+        {
+          "title": "3er Reto Naturalista IPN",
+          "image": "/assets/agenda-3-4.webp",
+          "url": "https://www.ipn.mx/sustentabilidad/",
+          "date": "12, Oct 2026"
+        }
+      ]
+    },
+    {
+      "category": "Servicios",
+      "items": [
+        {
+          "title": "Factor de transferencia",
+          "image": "/assets/agenda-4-0.jpg",
+          "url": "https://www.encb.ipn.mx/udimeb/",
+          "date": "2, Oct 2026"
+        },
+        {
+          "title": "Centros de atención CICS STO",
+          "image": "/assets/agenda-4-1.jpg",
+          "url": "https://www.cics-sto.ipn.mx/servicios/cursos.html",
+          "date": "1, Oct 2026"
+        },
+        {
+          "title": "Dirección de Vinculación y Desarrollo Regional",
+          "image": "/assets/agenda-4-2.jpg",
+          "url": "https://www.ipn.mx/vinculacion/",
+          "date": "1, Oct 2026"
+        },
+        {
+          "title": "Centro de Nanociencias y Micro y Nanotecnologías.",
+          "image": "/assets/agenda-4-3.webp",
+          "url": "https://www.ipn.mx/assets/files/nanocentro/docs/Inicio/cat%C3%A1logo-de-servicios.pdf",
+          "date": "1, Oct 2026"
+        },
+        {
+          "title": "Alerta Nacional",
+          "image": "/assets/agenda-4-4.webp",
+          "url": "https://fichasalertanacional.segob.gob.mx/",
+          "date": "1, Oct 2026"
+        }
+      ]
+    }
+  ],
+  "education": "/assets/education-footer.png",
+  "government": "/assets/government-footer.svg",
+  "strip": "/assets/government-pleca.svg",
+  "help": "/assets/government-079.png",
+  "footerParagraphs": [
+    "INSTITUTO POLITÉCNICO NACIONAL",
+    "D.R. Instituto Politécnico Nacional (IPN). Av. Luis Enrique Erro S/N, Unidad Profesional Adolfo López Mateos, Zacatenco, Alcaldía Gustavo A. Madero, C.P. 07738, Ciudad de México. Conmutador: 55 57 29 60 00 / 55 57 29 63 00.",
+    "Esta página es una obra intelectual protegida por la Ley Federal del Derecho de Autor, puede ser reproducida con fines no lucrativos, siempre y cuando no se mutile, se cite la fuente completa y su dirección electrónica; su uso para otros fines, requiere autorización previa y por escrito de la Dirección General del Instituto."
+  ],
+  "govColumns": [
+    {
+      "title": "Enlaces",
+      "description": "",
+      "links": [
+        {
+          "title": "Participa",
+          "url": "https://participa.gob.mx"
+        },
+        {
+          "title": "Marco Jurídico",
+          "url": "http://www.ordenjuridico.gob.mx"
+        },
+        {
+          "title": "Plataforma Nacional de Transparencia",
+          "url": "https://consultapublicamx.inai.org.mx/vut-web/"
+        },
+        {
+          "title": "Transparencia para el pueblo",
+          "url": "https://transparencia.gob.mx"
+        },
+        {
+          "title": "Alerta",
+          "url": "https://alertadores.funcionpublica.gob.mx/"
+        }
+      ]
+    },
+    {
+      "title": "¿Qué es gob.mx?",
+      "description": "Es el portal único de trámites, información y participación ciudadana. Leer más",
+      "links": [
+        {
+          "title": "Portal de datos abiertos",
+          "url": "https://datos.gob.mx"
+        },
+        {
+          "title": "Declaración de accesibilidad",
+          "url": "https://www.gob.mx/accesibilidad"
+        },
+        {
+          "title": "Términos y Condiciones",
+          "url": "https://www.gob.mx/terminos"
+        }
+      ]
+    }
+  ],
+  "govSocial": [
+    {
+      "title": "Facebook",
+      "url": "https://www.facebook.com/gobmexico",
+      "image": "/assets/gov-social-0.png"
+    },
+    {
+      "title": "Twitter",
+      "url": "https://twitter.com/GobiernoMX",
+      "image": "/assets/gov-social-1.png"
+    },
+    {
+      "title": "Instagram",
+      "url": "https://www.instagram.com/gobmexico/",
+      "image": "/assets/gov-social-2.png"
+    },
+    {
+      "title": "Youtube",
+      "url": "https://www.youtube.com/@gobiernodemexico",
+      "image": "/assets/gov-social-3.png"
+    }
+  ],
+  "types": {
+    "agenda-0-0.jpg": "image/jpeg",
+    "agenda-1-0.webp": "image/webp",
+    "agenda-1-1.png": "image/png",
+    "agenda-2-0.jpg": "image/jpeg",
+    "agenda-2-1.webp": "image/webp",
+    "agenda-2-2.webp": "image/webp",
+    "agenda-2-3.webp": "image/webp",
+    "agenda-3-0.webp": "image/webp",
+    "agenda-3-1.webp": "image/webp",
+    "agenda-3-2.webp": "image/webp",
+    "agenda-3-3.webp": "image/webp",
+    "agenda-3-4.webp": "image/webp",
+    "agenda-4-0.jpg": "image/jpeg",
+    "agenda-4-1.jpg": "image/jpeg",
+    "agenda-4-2.jpg": "image/jpeg",
+    "agenda-4-3.webp": "image/webp",
+    "agenda-4-4.webp": "image/webp",
+    "education-footer.png": "image/png",
+    "government-footer.svg": "image/svg+xml",
+    "government-pleca.svg": "image/svg+xml",
+    "government-079.png": "image/png",
+    "gov-social-0.png": "image/png",
+    "gov-social-1.png": "image/png",
+    "gov-social-2.png": "image/png",
+    "gov-social-3.png": "image/png",
+    "red-hat-display-0.woff2": "font/ttf",
+    "red-hat-display-1.woff2": "font/ttf",
+    "red-hat-display-2.woff2": "font/ttf",
+    "red-hat-display-3.woff2": "font/ttf",
+    "red-hat-display-4.woff2": "font/ttf",
+    "red-hat-display-5.woff2": "font/ttf",
+    "reference-font.css": "text/css; charset=utf-8"
+  }
+}

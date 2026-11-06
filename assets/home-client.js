@@ -143,3 +143,10 @@
     });
   }
 })();
+
+// Accessible Agenda Politécnica tabs, with keyboard navigation.
+for (const list of document.querySelectorAll('.agenda-tabs')) {
+ const tabs=[...list.querySelectorAll('[role="tab"]')];
+ const activate=tab=>{for(const item of tabs){const active=item===tab;item.setAttribute('aria-selected',String(active));item.tabIndex=active?0:-1;document.getElementById(item.getAttribute('aria-controls')).hidden=!active;}};
+ for(const tab of tabs){tab.addEventListener('click',()=>activate(tab));tab.addEventListener('keydown',event=>{let next;if(event.key==='ArrowRight')next=(tabs.indexOf(tab)+1)%tabs.length;if(event.key==='ArrowLeft')next=(tabs.indexOf(tab)+tabs.length-1)%tabs.length;if(event.key==='Home')next=0;if(event.key==='End')next=tabs.length-1;if(next!==undefined){event.preventDefault();activate(tabs[next]);tabs[next].focus();}});}
+}
