@@ -81,7 +81,7 @@ function portalShell(title,body,{page,brand,footer,html},status=200) {
     '<header class="wrap header institutional-header"><a class="ipn-identity" href="https://www.ipn.mx/"><img src="/assets/ipn.png" alt="Instituto Politécnico Nacional"></a>' + brand + '</header>' +
     migratedNavigation(html) + '<main class="wrap section portal-document" id="contenido"><p class="breadcrumbs"><a href="/">Inicio</a> / ' + html(title) + '</p><h1>' + html(title) + '</h1>' + body + '</main>' + footer,status);
 }
-function contactForm(type,html) {
+export function contactForm(type,html) {
   return '<section class="contact-form"><h2>' + (type==='suggestion' ? 'Buzón de sugerencias' : 'Escríbenos') + '</h2><form method="post" action="/contacto"><input type="hidden" name="type" value="' + type + '">' +
     '<label>Nombre completo<input name="name" required maxlength="120" autocomplete="name"></label>' +
     '<label>Correo electrónico<input name="email" type="email" required maxlength="254" autocomplete="email"></label>' +

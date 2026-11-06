@@ -1,4 +1,5 @@
-import {migratedNavigation,portalExtras,portalHomeUpdates,portalMedia,portalPublic,portalAdmin,portalTarget} from '../portal.js';
+import {socialIcons,contactSection} from '../portal-design.js';
+import {contactForm,migratedNavigation,portalExtras,portalHomeUpdates,portalMedia,portalPublic,portalAdmin,portalTarget} from '../portal.js';
 import {readMotion,renderFeature,renderNotice,motionAdmin,uploadMotionImage,uploadedMotionImage} from '../home-motion.js';
 const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
@@ -54,7 +55,7 @@ function equal(a,b) {
   return difference === 0;
 }
 const headers = {
-  'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self' https:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+  'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; frame-src https://www.google.com; style-src 'self'; img-src 'self' https:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
   'Referrer-Policy':'strict-origin-when-cross-origin',
   'X-Content-Type-Options':'nosniff',
   'Cache-Control':'no-store'
@@ -80,7 +81,7 @@ const socialLinks = [
   ['Instagram','https://www.instagram.com/citedi_ipn/'],
   ['YouTube','https://www.youtube.com/user/citediipn']
 ];
-const footer = '<footer><div class="wrap footer"><div><strong>Instituto Politécnico Nacional</strong><p>Centro de Investigación y Desarrollo de Tecnología Digital</p></div><div><strong>Redes sociales</strong><div class="social-links">' + socialLinks.map(([label,url]) => link(url,label)).join('') + '</div></div><div><a href="' + ipn + '/">Sitio oficial CITEDI IPN ↗</a><br><a href="/admin">Gestor de contenidos ↗</a></div></div></footer>';
+const footer = '<footer><div class="wrap footer"><div><strong>Instituto Politécnico Nacional</strong><p>Centro de Investigación y Desarrollo de Tecnología Digital</p></div><div><strong>Redes sociales</strong><div class="social-links">' + socialIcons() + '</div></div><div><a href="' + ipn + '/">Sitio oficial CITEDI IPN ↗</a><br><a href="/admin">Gestor de contenidos ↗</a></div></div></footer>';
 function navigation(content) {
   return migratedNavigation(html);
 }
@@ -107,11 +108,12 @@ function home(content, preview = false, updates = [], motion) {
     '<div class="utility"><div class="wrap"><span>INSTITUTO POLITÉCNICO NACIONAL</span><div><a href="/directorio">Directorio</a><a href="'+officialLinks.calendar+'">Calendario</a><a href="/admin">Gestor CMS ↗</a></div></div></div>'+
     '<header class="wrap header institutional-header"><a href="https://www.ipn.mx/" class="ipn-identity"><img src="/assets/ipn.png" alt="Educación · Instituto Politécnico Nacional" width="825" height="125"></a>'+brand+'</header>'+navigation(c)+
     '<main id="contenido" class="home-main">'+renderFeature(c,motion,html)+renderNotice(motion,html)+
+    '<section class="portal-statistics" aria-label="CITEDI en cifras"><div class="wrap">'+[['35','Estudiantes'],['308','Egresados'],['8','Laboratorios'],['2','Programas']].map(([n,l])=>'<a href="/conocenos#numeralia"><strong>'+n+'</strong><span>'+l+'</span></a>').join('')+'</div><p>Cifras institucionales recuperadas el 5 de noviembre de 2026 · <a href="/conocenos#numeralia">Ver numeralia</a></p></section>'+
     '<section class="shortcuts" aria-label="Accesos rápidos"><div class="wrap">'+shortcuts.map(([title,url,text],index)=>'<a href="'+html(url)+'"><span class="shortcut-number">0'+(index+1)+'</span><span><strong>'+title+'</strong><small>'+text+'</small></span><span aria-hidden="true">↗</span></a>').join('')+'</div></section>'+
     '<section class="wrap section" id="oferta" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> CONSTRUYE TU SIGUIENTE ETAPA</div><h2>Oferta educativa</h2></div><p>Formación de posgrado en sistemas digitales, investigación y desarrollo tecnológico.</p></div><div class="programs">'+programCards+'</div></section>'+
     '<section id="investigacion" class="home-research"><div class="wrap section split" data-reveal><div><div class="eyebrow"><span></span> CONOCIMIENTO QUE SE TRANSFORMA</div><h2>Investigación</h2><p>'+html(c.researchText)+'</p>'+link('/investigacion','Explorar la investigación','button primary')+'</div><div class="research-topics">'+researchTopics+'</div></div></section>'+
     portalExtras(html,updates)+
-    '<section id="contacto" class="home-contact"><div class="wrap section split" data-reveal><div><div class="eyebrow"><span></span> CERCA DE NUESTRA COMUNIDAD</div><h2>Visita el CITEDI</h2><p>'+html(c.contact)+'</p></div><div class="contact-actions">'+link(c.contactLink,'Contacto institucional')+link('/conocenos#ubicacion','Cómo llegar')+link(c.noticeLink,'Convocatorias de admisión')+'</div></div></section></main>'+footer);
+    contactSection(c,html,contactForm)+'</main>'+footer);
 }
 function authForm(setup, error = '', status = 200) {
   const title = setup ? 'Crea la primera cuenta' : 'Inicia sesión';
