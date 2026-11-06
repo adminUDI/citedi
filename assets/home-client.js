@@ -1,4 +1,5 @@
 (() => {
+  const en = document.documentElement.lang === 'en';
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   for (const carousel of document.querySelectorAll('[data-carousel]')) {
     const slides = [...carousel.querySelectorAll('[data-slide]')];
@@ -28,10 +29,10 @@
     function updatePause() {
       if (!pause) return;
       pause.disabled = reducedMotion.matches;
-      pause.textContent = reducedMotion.matches ? 'Movimiento reducido' : paused ? 'Reanudar' : 'Pausar';
+      pause.textContent = reducedMotion.matches ? (en?'Reduced motion':'Movimiento reducido') : paused ? (en?'Resume':'Reanudar') : (en?'Pause':'Pausar');
       pause.setAttribute('aria-pressed', String(paused || reducedMotion.matches));
       pause.setAttribute('aria-label', reducedMotion.matches ? 'Cambio automático desactivado por movimiento reducido' :
-        paused ? 'Reanudar cambio automático' : 'Pausar cambio automático');
+        paused ? (en?'Resume automatic slideshow':'Reanudar cambio automático') : (en?'Pause automatic slideshow':'Pausar cambio automático'));
     }
     function show(next, announce = true) {
       index = (next + slides.length) % slides.length;
@@ -41,7 +42,7 @@
         slide.classList.toggle('is-current', position === index);
       });
       dots.forEach((dot, position) => dot.setAttribute('aria-pressed', String(position === index)));
-      if (status && announce) status.textContent = 'Imagen ' + (index + 1) + ' de ' + slides.length;
+      if (status && announce) status.textContent = (en?'Image ':'Imagen ') + (index + 1) + (en?' of ':' de ') + slides.length;
       schedule();
     }
     carousel.querySelector('[data-prev]')?.addEventListener('click', () => show(index - 1));
@@ -150,3 +151,7 @@ for (const list of document.querySelectorAll('.agenda-tabs')) {
  const activate=tab=>{for(const item of tabs){const active=item===tab;item.setAttribute('aria-selected',String(active));item.tabIndex=active?0:-1;document.getElementById(item.getAttribute('aria-controls')).hidden=!active;}};
  for(const tab of tabs){tab.addEventListener('click',()=>activate(tab));tab.addEventListener('keydown',event=>{let next;if(event.key==='ArrowRight')next=(tabs.indexOf(tab)+1)%tabs.length;if(event.key==='ArrowLeft')next=(tabs.indexOf(tab)+tabs.length-1)%tabs.length;if(event.key==='Home')next=0;if(event.key==='End')next=tabs.length-1;if(next!==undefined){event.preventDefault();activate(tabs[next]);tabs[next].focus();}});}
 }
+
+for(const toggle of document.querySelectorAll('[data-contrast]'))toggle.addEventListener('click',()=>{const enabled=document.documentElement.classList.toggle('high-contrast');toggle.setAttribute('aria-pressed',String(enabled));});
+let portalFontScale=100;
+for(const control of document.querySelectorAll('[data-text-size]'))control.addEventListener('click',()=>{portalFontScale=control.dataset.textSize==='reset'?100:Math.max(80,Math.min(140,portalFontScale+(control.dataset.textSize==='increase'?10:-10)));document.documentElement.style.fontSize=portalFontScale+'%';});

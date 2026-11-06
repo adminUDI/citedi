@@ -61,3 +61,7 @@ Las imágenes nuevas se guardan en `data/home-media/` al ejecutar Node.js y en R
 ## Agenda, videos y pie institucional
 
 La portada incorpora los videos originales de Maestría (`rK5lmU75Wtk`) y Doctorado (`83WbOyWO2ag`), con reproductores adaptables de YouTube. La Agenda Politécnica tiene cinco pestañas y 17 imágenes recuperadas del portal institucional. `portal-reference.json` conserva esta copia de la agenda; no se actualiza automáticamente. Los recursos visuales, la cenefa de Gobierno de México y la tipografía Red Hat Display se sirven desde `assets/`. Los logos, publicaciones y textos institucionales conservan sus derechos de origen.
+
+## Encabezado e idioma inglés
+
+El encabezado institucional usa los logos e icono de idioma recuperados del IPN, con la identidad de CITEDI. La lupa abre un buscador local. Los controles permiten contraste y tamaño de letra. `/en` presenta la portada en inglés, con páginas para About, Research, Environment, Master’s, Doctorate, Admissions, Services y Contact. Las publicaciones y documentos originales en español se identifican mediante enlaces. El formulario en inglés registra solicitudes en la misma bandeja del CMS. `english.js` contiene los textos en inglés; las traducciones se mantienen en el código.

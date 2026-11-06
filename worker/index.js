@@ -1,3 +1,5 @@
+import {portalHeader} from '../portal-header.js';
+import {englishResponse,englishPages} from '../english.js';
 import {referenceTypes,programVideo,agendaSection,institutionalFooter} from '../institutional-reference.js';
 import {socialIcons,contactSection} from '../portal-design.js';
 import {contactForm,migratedNavigation,portalExtras,portalHomeUpdates,portalMedia,portalPublic,portalAdmin,portalTarget} from '../portal.js';
@@ -6,7 +8,7 @@ const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
 const bundledAssets = {};
 const assetTypes = {'campus.jpg':'image/jpeg','ipn.png':'image/png','citedi.png':'image/png'};
-const homeAssetTypes={...referenceTypes,'home-client.js':'text/javascript; charset=utf-8','home-enhancements.css':'text/css; charset=utf-8'};
+const homeAssetTypes={'language-ipn.png':'image/png','header-education.svg':'image/svg+xml','header-ipn.svg':'image/svg+xml',...referenceTypes,'home-client.js':'text/javascript; charset=utf-8','home-enhancements.css':'text/css; charset=utf-8'};
 const academicIconTypes = {'academic-thesis.png':'image/png','academic-registroTesis.png':'image/png','academic-tabs-syllabus-lab.png':'image/png','academic-cv.png':'image/png','academic-contact.png':'image/png','academic-graduates.png':'image/png','academic-evaluaciondocente.png':'image/png','academic-projects.png':'image/png','academic-papers.png':'image/png','academic-agreements.png':'image/png','academic-icon-oportunities.png':'image/png','academic-events.png':'image/png','academic-news.png':'image/png','academic-icon-ds.png':'image/png','academic-certificate.png':'image/png','academic-vue.gif':'image/gif','academic-focusgroup.png':'image/png','academic-gpr.png':'image/png','academic-sipot.png':'image/png','academic-viaticos.png':'image/png','academic-requisiciones.png':'image/png','academic-bolsa-de-la-compra.png':'image/png'};
 const groups = [
   ['Presentación', [
@@ -106,8 +108,7 @@ function home(content, preview = false, updates = [], motion) {
   ].map(([number,label,anchor])=>'<a href="/investigacion#'+anchor+'"><div><span>LÍNEA '+number+'</span>'+label+'</div><b aria-hidden="true">↗</b></a>').join('');
   return page('Inicio',
     (preview?'<div class="preview-banner">Vista previa del borrador <a href="/admin">Volver al gestor</a></div>':'')+
-    '<div class="utility"><div class="wrap"><span>INSTITUTO POLITÉCNICO NACIONAL</span><div><a href="/directorio">Directorio</a><a href="'+officialLinks.calendar+'">Calendario</a><a href="/admin">Gestor CMS ↗</a></div></div></div>'+
-    '<header class="wrap header institutional-header"><a href="https://www.ipn.mx/" class="ipn-identity"><img src="/assets/ipn.png" alt="Educación · Instituto Politécnico Nacional" width="825" height="125"></a>'+brand+'</header>'+navigation(c)+
+    portalHeader()+navigation(c)+
     '<main id="contenido" class="home-main">'+renderFeature(c,motion,html)+renderNotice(motion,html)+
     '<section class="portal-statistics" aria-label="CITEDI en cifras"><div class="wrap">'+[['35','Estudiantes'],['308','Egresados'],['8','Laboratorios'],['2','Programas']].map(([n,l])=>'<a href="/conocenos#numeralia"><strong>'+n+'</strong><span>'+l+'</span></a>').join('')+'</div><p>Cifras institucionales recuperadas el 5 de noviembre de 2026 · <a href="/conocenos#numeralia">Ver numeralia</a></p></section>'+
     '<section class="shortcuts" aria-label="Accesos rápidos"><div class="wrap">'+shortcuts.map(([title,url,text],index)=>'<a href="'+html(url)+'"><span class="shortcut-number">0'+(index+1)+'</span><span><strong>'+title+'</strong><small>'+text+'</small></span><span aria-hidden="true">↗</span></a>').join('')+'</div></section>'+
@@ -301,9 +302,11 @@ async function route(request, env) {
   const portalContext={html,alert,page,brand,footer,redirect,validEmail,digest,clientAddress:request.headers.get('CF-Connecting-IP')||'local'};
   const stateOf = async () => await sql('SELECT * FROM home WHERE id=1').first() ??
     {draft:JSON.stringify(initial),published:JSON.stringify(initial),revision:0};
-  if (method === 'GET' && path === '/') {
+  if(method==='GET'&&['/english','/english/'].includes(path))return redirect('/en');
+  if (method === 'GET' && (path === '/'||path==='/en'||path==='/en/')) {
     const content=JSON.parse((await stateOf()).published);
-    return home(content,false,await portalHomeUpdates(sql),await readMotion(sql,false,content));
+    const response=home(content,false,await portalHomeUpdates(sql),await readMotion(sql,false,content));
+    return path.startsWith('/en')?englishResponse(response):response;
   }
   let form;
   if (method === 'POST') {
@@ -319,6 +322,14 @@ async function route(request, env) {
   if(path==='/admin/carrusel/imagen'&&method==='POST') {
     if(!user)return Response.json({error:'Inicia sesión en el gestor para subir una imagen.'},{status:401});
     return uploadMotionImage(request,env,user,sql);
+  }
+  if(path.startsWith('/en/')) {
+    const slug=path.slice(4).replace(/\/$/,'');
+    if(method==='GET'&&englishPages[slug]){const [title,body]=englishPages[slug];return englishResponse(page(title,portalHeader()+navigation()+ '<main class="wrap section portal-document" id="contenido"><p class="breadcrumbs"><a href="/en">Home</a> / '+html(title)+'</p><h1>'+html(title)+'</h1>'+body+'</main>'+footer));}
+    if(slug==='contact'&&method==='GET')return englishResponse(page('Contact',portalHeader()+navigation()+'<main id="contenido"><h1 class="wrap section">Contact CITEDI</h1>'+contactSection(initial,html,contactForm)+'</main>'+footer));
+    if(slug==='contact'&&method==='POST')return englishResponse(await portalPublic('/contacto',method,form,url,sql,portalContext));
+    if(slug==='search'&&method==='GET')return englishResponse(await portalPublic('/portal-buscar',method,form,url,sql,portalContext));
+    return englishResponse(page('Page not found',portalHeader()+navigation()+'<main class="wrap section" id="contenido"><h1>Page not found</h1><a href="/en">Back to home</a></main>'+footer,404));
   }
   const publicPage = await portalPublic(path,method,form,url,sql,portalContext);
   if (publicPage) return publicPage;

@@ -1,3 +1,4 @@
+import {portalHeader,searchCorner} from './portal-header.js';
 import sanitizeHtml from 'sanitize-html';
 import seed from './portal-seed.json' with {type:'json'};
 
@@ -33,10 +34,10 @@ export const portalMenu = [
   ['Servicios',[['Servicios y vinculación','/servicios'],['Directorio','/directorio'],['Sistema de Gestión de la Calidad','/calidad'],['Contacto','/contacto']]]
 ];
 export function migratedNavigation(html) {
-  return '<nav class="institution-nav" aria-label="Navegación principal"><div class="wrap nav-items"><a href="/">Inicio</a>' +
+  return '<nav class="institution-nav" aria-label="Navegación principal"><a class="nav-citedi" href="/"><img src="/assets/citedi.png" alt="CITEDI · IPN"></a><div class="wrap nav-items"><a href="/">Inicio</a>' +
     portalMenu.map(([title,items]) => '<details><summary>' + title + '</summary><ul>' +
       items.map(([label,url]) => '<li><a href="' + html(url) + '">' + html(label) + '</a></li>').join('') + '</ul></details>').join('') +
-    '<a href="/eventos">Eventos</a><a href="/noticias">Noticias</a><a href="/portal-buscar">Buscar</a><a href="/english" lang="en">English</a></div></nav>';
+    '<a href="/eventos">Eventos</a><a href="/noticias">Noticias</a></div>'+searchCorner()+'</nav>';
 }
 export function cleanPortalBody(body) {
   return sanitizeHtml(body,{
@@ -77,8 +78,7 @@ async function allDocuments(sql,draft=false) {
   return [...documents.values()];
 }
 function portalShell(title,body,{page,brand,footer,html},status=200) {
-  return page(title,'<div class="utility"><div class="wrap"><span>INSTITUTO POLITÉCNICO NACIONAL</span><a href="/admin">Gestor de contenidos ↗</a></div></div>' +
-    '<header class="wrap header institutional-header"><a class="ipn-identity" href="https://www.ipn.mx/"><img src="/assets/ipn.png" alt="Instituto Politécnico Nacional"></a>' + brand + '</header>' +
+  return page(title,portalHeader() +
     migratedNavigation(html) + '<main class="wrap section portal-document" id="contenido"><p class="breadcrumbs"><a href="/">Inicio</a> / ' + html(title) + '</p><h1>' + html(title) + '</h1>' + body + '</main>' + footer,status);
 }
 export function contactForm(type,html) {
