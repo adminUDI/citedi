@@ -1,8 +1,10 @@
 import {migratedNavigation,portalExtras,portalHomeUpdates,portalMedia,portalPublic,portalAdmin,portalTarget} from '../portal.js';
+import {readMotion,renderFeature,renderNotice,motionAdmin,uploadMotionImage,uploadedMotionImage} from '../home-motion.js';
 const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
 const bundledAssets = {};
 const assetTypes = {'campus.jpg':'image/jpeg','ipn.png':'image/png','citedi.png':'image/png'};
+const homeAssetTypes={'home-client.js':'text/javascript; charset=utf-8','home-enhancements.css':'text/css; charset=utf-8'};
 const academicIconTypes = {'academic-thesis.png':'image/png','academic-registroTesis.png':'image/png','academic-tabs-syllabus-lab.png':'image/png','academic-cv.png':'image/png','academic-contact.png':'image/png','academic-graduates.png':'image/png','academic-evaluaciondocente.png':'image/png','academic-projects.png':'image/png','academic-papers.png':'image/png','academic-agreements.png':'image/png','academic-icon-oportunities.png':'image/png','academic-events.png':'image/png','academic-news.png':'image/png','academic-icon-ds.png':'image/png','academic-certificate.png':'image/png','academic-vue.gif':'image/gif','academic-focusgroup.png':'image/png','academic-gpr.png':'image/png','academic-sipot.png':'image/png','academic-viaticos.png':'image/png','academic-requisiciones.png':'image/png','academic-bolsa-de-la-compra.png':'image/png'};
 const groups = [
   ['Presentación', [
@@ -52,7 +54,7 @@ function equal(a,b) {
   return difference === 0;
 }
 const headers = {
-  'Content-Security-Policy': "default-src 'none'; style-src 'self'; img-src 'self' https:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+  'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self' https:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
   'Referrer-Policy':'strict-origin-when-cross-origin',
   'X-Content-Type-Options':'nosniff',
   'Cache-Control':'no-store'
@@ -60,7 +62,7 @@ const headers = {
 const redirect = (to,cookie) => new Response(null,{status:303,headers:{...headers,Location:to,...(cookie ? {'Set-Cookie':cookie} : {})}});
 const cookie = (url,value,age) => 'citedi_session=' + value + '; Path=/; HttpOnly; SameSite=Lax; Max-Age=' + age + (url.protocol === 'https:' ? '; Secure' : '');
 function page(title, body, status = 200) {
-  return new Response('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Portal académico del Centro de Investigación y Desarrollo de Tecnología Digital"><title>' + html(title) + ' · CITEDI</title><link rel="stylesheet" href="/style.css"></head><body><a class="skip" href="#contenido">Ir al contenido</a>' + body + '</body></html>',{status,headers:{...headers,'Content-Type':'text/html; charset=utf-8'}});
+  return new Response('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Portal académico del Centro de Investigación y Desarrollo de Tecnología Digital"><title>' + html(title) + ' · CITEDI</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/assets/home-enhancements.css"><script src="/assets/home-client.js" defer></script></head><body><a class="skip" href="#contenido">Ir al contenido</a>' + body + '</body></html>',{status,headers:{...headers,'Content-Type':'text/html; charset=utf-8'}});
 }
 const link = (url,label,classes = '') => '<a class="' + classes + '" href="' + html(url) + '">' + html(label) + ' <span aria-hidden="true">↗</span></a>';
 const input = (name,label,type = 'text',attributes = '') => '<label>' + label + '<input name="' + name + '" type="' + type + '" required ' + attributes + '></label>';
@@ -82,23 +84,34 @@ const footer = '<footer><div class="wrap footer"><div><strong>Instituto Politéc
 function navigation(content) {
   return migratedNavigation(html);
 }
-function home(content, preview = false,updates=[]) {
+function home(content, preview = false, updates = [], motion) {
   const c = {...initial,...content};
-  for(const key of ['mastersLink','doctorateLink','noticeLink','contactLink']) c[key]=portalTarget(c[key]);
-  const photo = c.heroImage || '/assets/campus.jpg';
-  const description = c.heroImage ? c.heroAlt : 'Edificio del CITEDI en Tijuana';
-  const programs = [['Maestría','masters'],['Doctorado','doctorate']];
-  const shortcuts = [['Estudiantes',officialLinks.students,'Servicios y trámites escolares'],['Egresados',officialLinks.alumni,'Vinculación con la comunidad'],['Laboratorios',officialLinks.labs,'Infraestructura de investigación'],['Programas','#oferta','Maestría y doctorado']];
+  for (const key of ['mastersLink','doctorateLink','noticeLink','contactLink']) c[key]=portalTarget(c[key]);
+  const programs=[['01','Maestría','masters'],['02','Doctorado','doctorate']];
+  const shortcuts=[
+    ['Estudiantes',officialLinks.students,'Servicios y trámites escolares'],
+    ['Egresados',officialLinks.alumni,'Vinculación con la comunidad'],
+    ['Laboratorios',officialLinks.labs,'Infraestructura de investigación'],
+    ['Programas','#oferta','Maestría y doctorado']
+  ];
+  const programCards=programs.map(([number,label,key])=>
+    '<article class="program" data-reveal><div class="program-top"><span>'+label.toUpperCase()+'</span><span class="program-number">'+number+'</span></div><h3>'+html(c[key])+'</h3><p>'+html(c[key+'Text'])+'</p>'+link(c[key+'Link'],'Conocer el programa','text-link')+'</article>'
+  ).join('');
+  const researchTopics=[
+    ['01','Sistemas dinámicos y control','sdycte'],
+    ['02','Cómputo inteligente','ciar'],
+    ['03','Imagen y telecomunicaciones','titm']
+  ].map(([number,label,anchor])=>'<a href="/investigacion#'+anchor+'"><div><span>LÍNEA '+number+'</span>'+label+'</div><b aria-hidden="true">↗</b></a>').join('');
   return page('Inicio',
-    (preview ? '<div class="preview-banner">Vista previa del borrador <a href="/admin">Volver al editor</a></div>' : '') +
-    '<div class="utility"><div class="wrap"><span>INSTITUTO POLITÉCNICO NACIONAL</span><div><a href="https://www.ipn.mx/directorio-telefonico.html">Directorio</a><a href="' + officialLinks.calendar + '">Calendario</a><a href="/admin">Gestor CMS ↗</a></div></div></div>' +
-    '<header class="wrap header institutional-header"><a href="https://www.ipn.mx/" class="ipn-identity"><img src="/assets/ipn.png" alt="Educación · Instituto Politécnico Nacional" width="825" height="125"></a>' + brand + '</header>' + navigation(c) +
-    '<main id="contenido"><section class="masthead"><img src="' + html(photo) + '" alt="' + html(description) + '" fetchpriority="high"><div class="wrap masthead-inner"><div class="masthead-copy"><div class="eyebrow"><span></span>' + html(c.eyebrow) + '</div><h1>' + html(c.title) + '</h1><p>' + html(c.intro) + '</p><div class="actions"><a class="button primary" href="#oferta">Explorar posgrados <span aria-hidden="true">→</span></a>' + link(c.noticeLink,'Convocatorias','button campus-secondary') + '</div></div></div></section>' +
-    '<section class="shortcuts" aria-label="Accesos rápidos"><div class="wrap">' + shortcuts.map(([title,url,text],index) => '<a href="' + html(url) + '"><span class="shortcut-number">0' + (index+1) + '</span><span><strong>' + title + '</strong><small>' + text + '</small></span><span aria-hidden="true">↗</span></a>').join('') + '</div></section>' +
-    '<section class="wrap section" id="oferta"><div class="section-head"><div><div class="eyebrow"><span></span> FORMACIÓN DE POSGRADO</div><h2>Oferta educativa</h2></div><p>Programas de posgrado en sistemas digitales con sede en Tijuana.</p></div><div class="programs">' +
-    programs.map(([label,key]) => '<article class="program"><div class="eyebrow"><span></span>' + label + '</div><h3>' + html(c[key]) + '</h3><p>' + html(c[key + 'Text']) + '</p>' + link(c[key + 'Link'],'Conocer el programa','text-link') + '</article>').join('') +
-    '</div></section><section id="investigacion" class="research"><div class="wrap section split"><div><div class="eyebrow"><span></span> CIENCIA APLICADA</div><h2>Investigación</h2><p>' + html(c.researchText) + '</p></div>' + link(officialLinks.research,'Ver líneas de investigación','button primary') + '</div></section>' +
-    '<div class="wrap section programs"><section id="agenda" class="program"><div class="eyebrow"><span></span> AGENDA POLITÉCNICA</div><h2>' + html(c.notice) + '</h2><p>' + html(c.noticeText) + '</p>' + link(c.noticeLink,'Consultar aviso','text-link') + link(officialLinks.calendar,'Calendario académico IPN','text-link') + '</section><section id="contacto" class="program"><div class="eyebrow"><span></span> UBICACIÓN Y CONTACTO</div><h2>Visita el CITEDI</h2><p>' + html(c.contact) + '</p>' + link('https://www.google.com/maps/search/?api=1&query=CITEDI-IPN+Tijuana','Cómo llegar','text-link') + link('/contacto','Contacto institucional','text-link') + '</section></div>' + portalExtras(html,updates) + '</main>' + footer);
+    (preview?'<div class="preview-banner">Vista previa del borrador <a href="/admin">Volver al gestor</a></div>':'')+
+    '<div class="utility"><div class="wrap"><span>INSTITUTO POLITÉCNICO NACIONAL</span><div><a href="/directorio">Directorio</a><a href="'+officialLinks.calendar+'">Calendario</a><a href="/admin">Gestor CMS ↗</a></div></div></div>'+
+    '<header class="wrap header institutional-header"><a href="https://www.ipn.mx/" class="ipn-identity"><img src="/assets/ipn.png" alt="Educación · Instituto Politécnico Nacional" width="825" height="125"></a>'+brand+'</header>'+navigation(c)+
+    '<main id="contenido" class="home-main">'+renderFeature(c,motion,html)+renderNotice(motion,html)+
+    '<section class="shortcuts" aria-label="Accesos rápidos"><div class="wrap">'+shortcuts.map(([title,url,text],index)=>'<a href="'+html(url)+'"><span class="shortcut-number">0'+(index+1)+'</span><span><strong>'+title+'</strong><small>'+text+'</small></span><span aria-hidden="true">↗</span></a>').join('')+'</div></section>'+
+    '<section class="wrap section" id="oferta" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> CONSTRUYE TU SIGUIENTE ETAPA</div><h2>Oferta educativa</h2></div><p>Formación de posgrado en sistemas digitales, investigación y desarrollo tecnológico.</p></div><div class="programs">'+programCards+'</div></section>'+
+    '<section id="investigacion" class="home-research"><div class="wrap section split" data-reveal><div><div class="eyebrow"><span></span> CONOCIMIENTO QUE SE TRANSFORMA</div><h2>Investigación</h2><p>'+html(c.researchText)+'</p>'+link('/investigacion','Explorar la investigación','button primary')+'</div><div class="research-topics">'+researchTopics+'</div></div></section>'+
+    portalExtras(html,updates)+
+    '<section id="contacto" class="home-contact"><div class="wrap section split" data-reveal><div><div class="eyebrow"><span></span> CERCA DE NUESTRA COMUNIDAD</div><h2>Visita el CITEDI</h2><p>'+html(c.contact)+'</p></div><div class="contact-actions">'+link(c.contactLink,'Contacto institucional')+link('/conocenos#ubicacion','Cómo llegar')+link(c.noticeLink,'Convocatorias de admisión')+'</div></div></section></main>'+footer);
 }
 function authForm(setup, error = '', status = 200) {
   const title = setup ? 'Crea la primera cuenta' : 'Inicia sesión';
@@ -116,7 +129,7 @@ function panel(user,state,accounts,message = '',status = 200) {
       (account.role === 'editor' ? '<form method="post" action="/admin/accounts/status"><input type="hidden" name="email" value="' + html(account.email) + '"><input type="hidden" name="active" value="' + (account.active ? 0 : 1) + '"><button class="button secondary">' + (account.active ? 'Desactivar' : 'Activar') + '</button></form>' : '') + '</div>').join('') +
     '</div><h3>Crear cuenta de edición</h3><form class="new-account" method="post" action="/admin/accounts">' + input('name','Nombre','text','maxlength="100"') + input('email','Correo electrónico','email','maxlength="254"') + input('password','Contraseña inicial','password','autocomplete="new-password" minlength="12" maxlength="128"') + '<button class="button primary">Crear editor</button></form></section>' : '';
   return page('Gestor de contenidos','<div class="utility"><div class="wrap"><span>GESTOR DE CONTENIDOS</span><a href="/">Ver portal ↗</a></div></div><header class="wrap header">' + brand +
-    '<form method="post" action="/logout"><button class="button secondary">Cerrar sesión</button></form></header><main class="wrap dashboard" id="contenido"><aside><small>ESPACIO EDITORIAL</small><strong>' + html(user.name) + '</strong><p>' + (admin ? 'Administrador' : 'Editor') + '</p><a href="#editor">Portada</a><a href="/admin/contenidos">Páginas y publicaciones</a>' + (admin ? '<a href="#usuarios">Usuarios</a><a href="/admin/academico">AdmAcademic</a><a href="/admin/mensajes">Mensajes recibidos</a>' : '') + '<a href="#cuenta">Mi contraseña</a></aside><div class="editor"><div class="eyebrow"><span></span> CONTENIDO DEL PORTAL</div><h1>Editar portada</h1><p>Completa los campos de la página y revisa el borrador antes de publicar.</p>' +
+    '<form method="post" action="/logout"><button class="button secondary">Cerrar sesión</button></form></header><main class="wrap dashboard" id="contenido"><aside><small>ESPACIO EDITORIAL</small><strong>' + html(user.name) + '</strong><p>' + (admin ? 'Administrador' : 'Editor') + '</p><a href="#editor">Portada</a><a href="/admin/carrusel">Carrusel y avisos</a><a href="/admin/contenidos">Páginas y publicaciones</a>' + (admin ? '<a href="#usuarios">Usuarios</a><a href="/admin/academico">AdmAcademic</a><a href="/admin/mensajes">Mensajes recibidos</a>' : '') + '<a href="#cuenta">Mi contraseña</a></aside><div class="editor"><div class="eyebrow"><span></span> CONTENIDO DEL PORTAL</div><h1>Editar portada</h1><p>Completa los campos de la página y revisa el borrador antes de publicar.</p>' +
     alert(message,status === 200) + '<div id="editor" class="editor-toolbar"><strong>' + (state.draft === state.published ? 'Sin cambios pendientes' : 'Borrador pendiente de publicación') + '</strong><a href="/admin/preview" target="_blank" rel="noopener">Vista previa ↗</a></div><form method="post" action="/admin/home"><input type="hidden" name="revision" value="' + state.revision + '">' +
     groups.map(([title,entries]) => '<fieldset class="editor-box"><legend>' + title + '</legend>' + entries.map(([key,label,,limit = 160,kind]) => '<label>' + label + (limit === 350 ? '<textarea name="' + key + '" required maxlength="' + limit + '" rows="3">' + html(draft[key]) + '</textarea>' : '<input name="' + key + '" value="' + html(draft[key]) + '" maxlength="' + limit + '"' + (kind === 'optional' ? '' : ' required') + '></label>')).map(field => field.endsWith('</label>') ? field : field + '</label>').join('') + '</fieldset>').join('') +
     '<div class="actions editor-actions"><button class="button secondary" name="action" value="save">Guardar borrador</button>' + (admin ? '<button class="button primary" name="action" value="publish">Publicar cambios</button>' : '') + '</div></form>' + accountSection +
@@ -271,7 +284,7 @@ async function route(request, env) {
   const importedFile = await portalMedia(request,env,url);
   if (importedFile) return importedFile;
   const asset = path.startsWith('/assets/') ? path.slice(8) : '';
-  const assetType = Object.hasOwn(assetTypes,asset) ? assetTypes[asset] : Object.hasOwn(academicIconTypes,asset) ? academicIconTypes[asset] : null;
+  const assetType = Object.hasOwn(assetTypes,asset) ? assetTypes[asset] : Object.hasOwn(academicIconTypes,asset) ? academicIconTypes[asset] : Object.hasOwn(homeAssetTypes,asset) ? homeAssetTypes[asset] : null;
   if (method === 'GET' && assetType) {
     const encoded = bundledAssets[asset];
     const bytes = encoded ? Uint8Array.from(atob(encoded), char => char.charCodeAt(0)) : env.ASSETS?.[asset];
@@ -280,19 +293,30 @@ async function route(request, env) {
   if (method === 'GET' && ['/portal','/portal/','/portal/index.php','/index.php'].includes(path)) return redirect('/');
   if (path === '/style.css' && method === 'GET') return new Response(css,{headers:{...headers,'Content-Type':'text/css; charset=utf-8'}});
   const sql = (query,...values) => env.DB.prepare(query).bind(...values);
+  const uploadedFile=await uploadedMotionImage(request,env,url,sql);
+  if(uploadedFile)return uploadedFile;
   const portalContext={html,alert,page,brand,footer,redirect,validEmail,digest,clientAddress:request.headers.get('CF-Connecting-IP')||'local'};
   const stateOf = async () => await sql('SELECT * FROM home WHERE id=1').first() ??
     {draft:JSON.stringify(initial),published:JSON.stringify(initial),revision:0};
-  if (method === 'GET' && path === '/') return home(JSON.parse((await stateOf()).published),false,await portalHomeUpdates(sql));
+  if (method === 'GET' && path === '/') {
+    const content=JSON.parse((await stateOf()).published);
+    return home(content,false,await portalHomeUpdates(sql),await readMotion(sql,false,content));
+  }
   let form;
   if (method === 'POST') {
     if (request.headers.get('origin') !== url.origin) return page('Solicitud rechazada','<main id="contenido" class="auth"><h1>Solicitud rechazada</h1></main>',403);
-    form = await readForm(request,path.startsWith('/admin/contenidos/')?2000000:24000);
-    if (!form) return page('Solicitud inválida','<main id="contenido" class="auth"><h1>Solicitud inválida</h1></main>',400);
+    if(path!=='/admin/carrusel/imagen') {
+      form = await readForm(request,path.startsWith('/admin/contenidos/')?2000000:50000);
+      if (!form) return page('Solicitud inválida','<main id="contenido" class="auth"><h1>Solicitud inválida</h1></main>',400);
+    }
   }
   const token = sessionToken(request);
   const tokenHash = token && await digest(token);
   const user = tokenHash && await sql('SELECT a.email,a.name,a.role FROM sessions s JOIN accounts a ON a.email=s.email WHERE s.token=? AND s.expires>? AND a.active=1',tokenHash,date()).first();
+  if(path==='/admin/carrusel/imagen'&&method==='POST') {
+    if(!user)return Response.json({error:'Inicia sesión en el gestor para subir una imagen.'},{status:401});
+    return uploadMotionImage(request,env,user,sql);
+  }
   const publicPage = await portalPublic(path,method,form,url,sql,portalContext);
   if (publicPage) return publicPage;
   if (path === '/setup' || (path === '/admin' && method === 'GET' && !user)) {
@@ -339,6 +363,8 @@ async function route(request, env) {
   if (method === 'GET' && ['/AdmAcademic','/AdmAcademic/','/AdmAcademic/index.php'].includes(path)) return redirect(academicRoot);
   if (path.startsWith('/admin')) {
     if (!user) return redirect('/admin');
+    if(path==='/admin/carrusel/vista-previa'&&method==='GET')return home(JSON.parse((await stateOf()).published),true,await portalHomeUpdates(sql),await readMotion(sql,true));
+    if(path==='/admin/carrusel'&&['GET','POST'].includes(method))return motionAdmin(method,form,url,user,sql,portalContext);
     const contentPage = await portalAdmin(path,method,form,url,user,sql,portalContext);
     if (contentPage) return contentPage;
     if (path === academicRoot || path.startsWith(academicRoot + '/')) {
@@ -350,7 +376,7 @@ async function route(request, env) {
       const messages = {saved:'Borrador guardado.',published:'Cambios publicados en la portada.',created:'Cuenta de edición creada.',account:'Estado de la cuenta actualizado.',password:'Contraseña actualizada.'};
       return render(Object.hasOwn(messages,url.searchParams.get('ok')) ? messages[url.searchParams.get('ok')] : '');
     }
-    if (path === '/admin/preview' && method === 'GET') return home(JSON.parse((await stateOf()).draft),true);
+    if (path === '/admin/preview' && method === 'GET') return home(JSON.parse((await stateOf()).draft),true,await portalHomeUpdates(sql),await readMotion(sql,true));
     if (path === '/admin/home' && method === 'POST') {
       const action = form.get('action');
       const publish = action === 'publish';

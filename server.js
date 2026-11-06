@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync, readFileSync, readdirSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import worker from './worker/index.js';
 
@@ -13,11 +13,20 @@ database.exec('PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_
 database.exec(readFileSync(new URL('./drizzle/0000_cms.sql', import.meta.url), 'utf8').replaceAll('CREATE TABLE ', 'CREATE TABLE IF NOT EXISTS '));
 database.exec(readFileSync(new URL('./drizzle/0001_academic.sql', import.meta.url), 'utf8'));
 database.exec(readFileSync(new URL('./drizzle/0002_portal.sql', import.meta.url), 'utf8'));
+database.exec(readFileSync(new URL('./drizzle/0003_home_motion.sql', import.meta.url), 'utf8'));
+mkdirSync('data/home-media',{recursive:true});
 const BUCKET = {
   async get(key) {
     if (!/^[a-f0-9]{64}\.[a-z0-9]+$/.test(key)) return null;
     try { return {body: readFileSync(new URL('./media/' + key, import.meta.url))}; }
-    catch { return null; }
+    catch {
+      try {return {body:readFileSync('data/home-media/'+key)};}
+      catch {return null;}
+    }
+  },
+  async put(key,bytes) {
+    if(!/^[a-f0-9]{64}\.(png|jpg|webp|gif)$/.test(key))throw Error('Nombre de archivo inválido');
+    writeFileSync('data/home-media/'+key,bytes);
   }
 };
 const DB = {

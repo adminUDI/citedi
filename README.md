@@ -51,3 +51,9 @@ Los formularios de contacto y sugerencias guardan las solicitudes en **Mensajes 
 La numeralia se tomó del portal oficial del IPN consultado el 5 de noviembre de 2026. Algunos documentos ya devolvían 404 en el servidor de origen y se identifican en el informe de migración.
 
 Para construir el Worker, ejecuta `npm run build`. La base de datos local aplica las tablas de `drizzle/` al arrancar. La base de datos y las cuentas locales son independientes de las del sitio publicado.
+
+## Carrusel y avisos de la portada
+
+En **Carrusel y avisos** (`/admin/carrusel`) se administran hasta ocho imágenes y cuatro avisos rotativos. Permite subir imágenes PNG, JPEG, WebP o GIF de hasta 5 MB, elegir imágenes del portal, editar textos y enlaces, ordenar diapositivas y ajustar el intervalo entre 4 y 30 segundos y la transición. El editor guarda borradores y consulta la vista previa; el administrador publica.
+
+Las imágenes nuevas se guardan en `data/home-media/` al ejecutar Node.js y en R2 al publicar en Sites. La configuración y sus revisiones se guardan en la base de datos con `drizzle/0003_home_motion.sql`. Los controles admiten teclado, pausa y gestos táctiles. El movimiento automático respeta la preferencia de movimiento reducido del dispositivo.
