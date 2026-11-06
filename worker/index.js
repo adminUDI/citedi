@@ -1,3 +1,4 @@
+import {communityAssetTypes} from '../community-news.js';
 import {visualShortcuts,visualResearch} from '../visual-sections.js';
 import quickPages from '../quick-pages.json' with {type:'json'};
 import {citediStatistics} from '../citedi-statistics.js';
@@ -11,7 +12,7 @@ const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
 const bundledAssets = {};
 const assetTypes = {'campus.jpg':'image/jpeg','ipn.png':'image/png','citedi.png':'image/png'};
-const homeAssetTypes={...quickPages.types,'language-ipn.png':'image/png','header-education.svg':'image/svg+xml','header-ipn.svg':'image/svg+xml',...referenceTypes,'home-client.js':'text/javascript; charset=utf-8','home-enhancements.css':'text/css; charset=utf-8'};
+const homeAssetTypes={...communityAssetTypes,...quickPages.types,'language-ipn.png':'image/png','header-education.svg':'image/svg+xml','header-ipn.svg':'image/svg+xml',...referenceTypes,'home-client.js':'text/javascript; charset=utf-8','home-enhancements.css':'text/css; charset=utf-8'};
 const academicIconTypes = {'academic-thesis.png':'image/png','academic-registroTesis.png':'image/png','academic-tabs-syllabus-lab.png':'image/png','academic-cv.png':'image/png','academic-contact.png':'image/png','academic-graduates.png':'image/png','academic-evaluaciondocente.png':'image/png','academic-projects.png':'image/png','academic-papers.png':'image/png','academic-agreements.png':'image/png','academic-icon-oportunities.png':'image/png','academic-events.png':'image/png','academic-news.png':'image/png','academic-icon-ds.png':'image/png','academic-certificate.png':'image/png','academic-vue.gif':'image/gif','academic-focusgroup.png':'image/png','academic-gpr.png':'image/png','academic-sipot.png':'image/png','academic-viaticos.png':'image/png','academic-requisiciones.png':'image/png','academic-bolsa-de-la-compra.png':'image/png'};
 const groups = [
   ['Presentación', [

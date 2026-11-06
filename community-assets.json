@@ -1,0 +1,14 @@
+{
+  "types": {
+    "community-consulta.jpg": "image/jpeg",
+    "community-patente.png": "image/png",
+    "community-seguridad.png": "image/png",
+    "community-seminario.png": "image/png"
+  },
+  "images": {
+    "consulta": "/assets/community-consulta.jpg",
+    "patente": "/assets/community-patente.png",
+    "seguridad": "/assets/community-seguridad.png",
+    "seminario": "/assets/community-seminario.png"
+  }
+}

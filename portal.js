@@ -1,10 +1,11 @@
+import {communityNews,communityDocuments} from './community-news.js';
 import quickPages from './quick-pages.json' with {type:'json'};
 import {sustainabilityCarousel} from './sustainability-carousel.js';
 import {portalHeader,searchCorner} from './portal-header.js';
 import sanitizeHtml from 'sanitize-html';
 import seed from './portal-seed.json' with {type:'json'};
 
-const sourceDocuments = new Map([...seed.documents,...quickPages.documents].map(document => [document.id,document]));
+const sourceDocuments = new Map([...seed.documents,...quickPages.documents,...communityDocuments].map(document => [document.id,document]));
 export function portalTarget(value) {
   const targets={
     'https://www.citedi.ipn.mx/oferta-educativa-citedi-ipn/maestria-sistemas-digitales/':'/maestria',
@@ -50,10 +51,8 @@ export function cleanPortalBody(body) {
   });
 }
 export function portalExtras(html,updates=[]) {
-  return (updates.length?'<section class="wrap section" data-reveal><h2>Publicaciones recientes</h2><ul class="portal-results">'+updates.map(d=>'<li><time>'+html(d.date)+'</time><a href="/'+html(d.id)+'">'+html(d.title)+'</a></li>').join('')+'</ul></section>':'')+
-    '<section class="wrap section migrated-home" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> COMUNIDAD CITEDI</div><h2>Eventos, noticias y convocatorias</h2></div></div>' +
-    (seed.homePanels || '<div class="programs"><a href="/eventos">Eventos</a><a href="/noticias">CITEDI en las noticias</a><a href="/convocatorias">Convocatorias</a></div>') +
-    '</section><section class="institutional-hub" id="comunidad-institucional" aria-labelledby="institutional-hub-title"><div class="wrap institutional-hub-heading"><div><div class="eyebrow">COMUNIDAD Y COMPROMISO</div><h2 id="institutional-hub-title">Enlaces de interés institucional</h2></div><p>Recursos para una comunidad informada, participativa y comprometida.</p></div><div class="wrap institutional-links">' + seed.homeLinks.map(item =>
+  return communityNews(html,updates)+
+    '<section class="institutional-hub" id="comunidad-institucional" aria-labelledby="institutional-hub-title"><div class="wrap institutional-hub-heading"><div><div class="eyebrow">COMUNIDAD Y COMPROMISO</div><h2 id="institutional-hub-title">Enlaces de interés institucional</h2></div><p>Recursos para una comunidad informada, participativa y comprometida.</p></div><div class="wrap institutional-links">' + seed.homeLinks.map(item =>
       '<a href="' + html(item.url) + '"><img src="' + html(item.image) + '" alt="' + html(item.title) + '" loading="lazy"><span>' + html(item.title) + '</span><span class="institutional-card-arrow" aria-hidden="true">↗</span></a>').join('') + '</div></section>';
 }
 export async function portalHomeUpdates(sql) {
