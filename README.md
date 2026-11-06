@@ -69,3 +69,6 @@ El encabezado institucional usa los logos e icono de idioma recuperados del IPN,
 ## Redes sociales y transmisiones
 
 Franja compacta debajo de eventos y noticias con cuatro tarjetas: tres grabaciones CITEDI y el mensaje del Secretario. Solo se crea un reproductor al seleccionar un video; cerrar o pulsar Escape lo detiene y devuelve el foco. Sin JavaScript cada tarjeta abre YouTube. Accesos directos a YouTube y Facebook. Desplazamiento horizontal en móviles. Selección en social-videos.json.
+
+## Contacto y campus
+Botón flotante guinda abre el formulario existente en la portada; los mensajes siguen llegando a /admin/mensajes. En páginas interiores enlaza a /contacto. Botón verde de volver arriba. Accesos de comunidad encima del menú y casita de inicio. Collage con fotografías oficiales: https://www.citedi.ipn.mx/conocenos/instalaciones/biblioteca.html , deportiva.html y laboratorios.html; archivos locales campus-library.jpg, campus-gardens.jpg, campus-lab.jpg, además del edificio campus.jpg.

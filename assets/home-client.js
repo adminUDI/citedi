@@ -175,3 +175,5 @@ for(const section of document.querySelectorAll('.social-strip')){
  dialog.querySelector('[data-social-close]').addEventListener('click',()=>dialog.close());
  dialog.addEventListener('close',()=>{slot.replaceChildren();trigger?.focus();});
 }
+
+for(const opener of document.querySelectorAll('[data-contact-open]')){const dialog=document.getElementById('contact-dialog');if(!dialog?.showModal)continue;opener.addEventListener('click',event=>{if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();dialog.showModal();});dialog.querySelector('[data-contact-close]').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>opener.focus());}

@@ -1,3 +1,4 @@
+import {visualShortcuts} from './visual-sections.js';
 import {socialSection} from './social-section.js';
 import {communityNews,communityDocuments} from './community-news.js';
 import quickPages from './quick-pages.json' with {type:'json'};
@@ -38,7 +39,7 @@ export const portalMenu = [
   ['Servicios',[['Servicios y vinculación','/servicios'],['Directorio','/directorio'],['Sistema de Gestión de la Calidad','/calidad'],['Contacto','/contacto']]]
 ];
 export function migratedNavigation(html) {
-  return '<nav class="institution-nav" aria-label="Navegación principal"><a class="nav-citedi" href="/"><img src="/assets/citedi.png" alt="CITEDI · IPN"></a><div class="wrap nav-items"><a href="/">Inicio</a>' +
+  return visualShortcuts().replace('illustrated-shortcuts','audience-bar')+'<nav class="institution-nav" aria-label="Navegación principal"><a class="nav-citedi" href="/"><img src="/assets/citedi.png" alt="CITEDI · IPN"></a><div class="wrap nav-items"><a class="home-nav-link" href="/" aria-label="Inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m1 11 11-10 11 10-2 2-2-2v12h-6v-8h-2v8H5V11l-2 2z"/></svg></a>' +
     portalMenu.map(([title,items]) => '<details><summary>' + title + '</summary><ul>' +
       items.map(([label,url]) => '<li><a href="' + html(url) + '">' + html(label) + '</a></li>').join('') + '</ul></details>').join('') +
     '<a href="/eventos">Eventos</a><a href="/noticias">Noticias</a></div>'+searchCorner()+'</nav>';
