@@ -1,3 +1,4 @@
+import {citediStatistics} from '../citedi-statistics.js';
 import {portalHeader} from '../portal-header.js';
 import {englishResponse,englishPages} from '../english.js';
 import {referenceTypes,programVideo,agendaSection,institutionalFooter} from '../institutional-reference.js';
@@ -110,7 +111,7 @@ function home(content, preview = false, updates = [], motion) {
     (preview?'<div class="preview-banner">Vista previa del borrador <a href="/admin">Volver al gestor</a></div>':'')+
     portalHeader()+navigation(c)+
     '<main id="contenido" class="home-main">'+renderFeature(c,motion,html)+renderNotice(motion,html)+
-    '<section class="portal-statistics" aria-label="CITEDI en cifras"><div class="wrap">'+[['35','Estudiantes'],['308','Egresados'],['8','Laboratorios'],['2','Programas']].map(([n,l])=>'<a href="/conocenos#numeralia"><strong>'+n+'</strong><span>'+l+'</span></a>').join('')+'</div><p>Cifras institucionales recuperadas el 5 de noviembre de 2026 · <a href="/conocenos#numeralia">Ver numeralia</a></p></section>'+
+    citediStatistics()+
     '<section class="shortcuts" aria-label="Accesos rápidos"><div class="wrap">'+shortcuts.map(([title,url,text],index)=>'<a href="'+html(url)+'"><span class="shortcut-number">0'+(index+1)+'</span><span><strong>'+title+'</strong><small>'+text+'</small></span><span aria-hidden="true">↗</span></a>').join('')+'</div></section>'+
     '<section class="wrap section" id="oferta" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> CONSTRUYE TU SIGUIENTE ETAPA</div><h2>Oferta educativa</h2></div><p>Formación de posgrado en sistemas digitales, investigación y desarrollo tecnológico.</p></div><div class="programs">'+programCards+'</div></section>'+
     '<section id="investigacion" class="home-research"><div class="wrap section split" data-reveal><div><div class="eyebrow"><span></span> CONOCIMIENTO QUE SE TRANSFORMA</div><h2>Investigación</h2><p>'+html(c.researchText)+'</p>'+link('/investigacion','Explorar la investigación','button primary')+'</div><div class="research-topics">'+researchTopics+'</div></div></section>'+
