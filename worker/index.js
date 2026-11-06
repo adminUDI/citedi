@@ -1,4 +1,4 @@
-import {migratedNavigation,portalExtras,portalHomeUpdates,portalMedia,portalImport,portalPublic,portalAdmin,portalTarget} from '../portal.js';
+import {migratedNavigation,portalExtras,portalHomeUpdates,portalMedia,portalPublic,portalAdmin,portalTarget} from '../portal.js';
 const ipn = 'https://www.citedi.ipn.mx';
 const offer = ipn + '/oferta-educativa-citedi-ipn/';
 const bundledAssets = {};
@@ -267,7 +267,8 @@ async function route(request, env) {
   const url = new URL(request.url);
   const path = url.pathname;
   const method = request.method;
-  const importedFile = await portalMedia(request,env,url) || await portalImport(request,env,url);
+  if(url.pathname.startsWith('/internal/media-import/')) return new Response(null,{status:404});
+  const importedFile = await portalMedia(request,env,url);
   if (importedFile) return importedFile;
   const asset = path.startsWith('/assets/') ? path.slice(8) : '';
   const assetType = Object.hasOwn(assetTypes,asset) ? assetTypes[asset] : Object.hasOwn(academicIconTypes,asset) ? academicIconTypes[asset] : null;

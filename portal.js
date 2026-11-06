@@ -105,27 +105,6 @@ export async function portalMedia(request,env,url) {
     ...(!seed.media[key].type.startsWith('image/')&&seed.media[key].type!=='application/pdf'?{'Content-Disposition':'attachment'}:{})
   }});
 }
-export async function portalImport(request,env,url) {
-  if(!url.pathname.startsWith('/internal/media-import/'))return null;
-  if(request.method!=='PUT'||!env.PORTAL_IMPORT_KEY)return new Response(null,{status:404});
-  const supplied=request.headers.get('X-Portal-Import-Key')||'';
-  const hash=async value=>new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)));
-  const a=await hash(supplied),b=await hash(env.PORTAL_IMPORT_KEY);
-  let difference=0;for(let i=0;i<a.length;i++)difference|=a[i]^b[i];
-  if(difference)return new Response(null,{status:403});
-  const key=url.pathname.slice('/internal/media-import/'.length);
-  if(!Object.hasOwn(seed.media,key))return new Response(null,{status:404});
-  const expected=seed.media[key];
-  const reader=request.body?.getReader();if(!reader)return new Response(null,{status:400});
-  const chunks=[];let size=0;
-  while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>expected.size){await reader.cancel();return new Response(null,{status:413});}chunks.push(value);}
-  if(size!==expected.size)return new Response(null,{status:400});
-  const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
-  const actual=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
-  if(!key.startsWith(actual+'.'))return new Response(null,{status:400});
-  await env.BUCKET.put(key,bytes,{httpMetadata:{contentType:expected.type}});
-  return new Response(null,{status:204});
-}
 export async function portalPublic(path,method,form,url,sql,context) {
   const {html,alert}=context;
   if(Object.hasOwn(seed.aliases,path)) {
