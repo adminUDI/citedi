@@ -1,3 +1,4 @@
+import {sustainabilityCarousel} from './sustainability-carousel.js';
 import {portalHeader,searchCorner} from './portal-header.js';
 import sanitizeHtml from 'sanitize-html';
 import seed from './portal-seed.json' with {type:'json'};
@@ -134,7 +135,8 @@ export async function portalPublic(path,method,form,url,sql,context) {
   const id=path.slice(1);
   const document=await documentById(id,sql);
   if(!document)return null;
-  let body='<div class="portal-body">'+document.body+'</div>';
+  const displayBody=id==='sustentabilidad'?sustainabilityCarousel(document.body,html):document.body;
+  let body='<div class="portal-body">'+displayBody+'</div>';
   const programHost=/^https?:\/\/(maestria|doctorado)\.citedi\.mx/.exec(document.source||'')?.[1];
   if(programHost) {
     const related=seed.documents.filter(d=>d.kind==='page'&&d.source.startsWith('https://'+programHost+'.citedi.mx/'));

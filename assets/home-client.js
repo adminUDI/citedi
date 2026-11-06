@@ -155,3 +155,11 @@ for (const list of document.querySelectorAll('.agenda-tabs')) {
 for(const toggle of document.querySelectorAll('[data-contrast]'))toggle.addEventListener('click',()=>{const enabled=document.documentElement.classList.toggle('high-contrast');toggle.setAttribute('aria-pressed',String(enabled));});
 let portalFontScale=100;
 for(const control of document.querySelectorAll('[data-text-size]'))control.addEventListener('click',()=>{portalFontScale=control.dataset.textSize==='reset'?100:Math.max(80,Math.min(140,portalFontScale+(control.dataset.textSize==='increase'?10:-10)));document.documentElement.style.fontSize=portalFontScale+'%';});
+
+for(const gallery of document.querySelectorAll('[data-infographics]')){
+ const track=gallery.querySelector('.infographic-track'),cards=[...track.querySelectorAll('.infographic-card')],previous=gallery.querySelector('[data-info-prev]'),next=gallery.querySelector('[data-info-next]'),count=gallery.querySelector('[data-info-count]'),status=gallery.querySelector('[data-info-status]');
+ const position=()=>{const width=cards[0]?.getBoundingClientRect().width||track.clientWidth;const gap=parseFloat(getComputedStyle(track).gap)||0;const first=Math.round(track.scrollLeft/(width+gap));const visible=Math.max(1,Math.round((track.clientWidth+gap)/(width+gap)));return {first,visible,width,gap};};
+ const update=()=>{const {first,visible}=position();previous.disabled=track.scrollLeft<2;next.disabled=track.scrollLeft+track.clientWidth>=track.scrollWidth-2;count.textContent=(first+1)+'–'+Math.min(cards.length,first+visible)+' de '+cards.length;};
+ const move=direction=>{const {visible,width,gap}=position();track.scrollBy({left:direction*visible*(width+gap),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});};
+ previous.hidden=next.hidden=cards.length<2;previous.addEventListener('click',()=>move(-1));next.addEventListener('click',()=>move(1));track.addEventListener('keydown',event=>{if(event.target!==track||!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();move(event.key==='ArrowLeft'?-1:1);});let announcement;track.addEventListener('scroll',()=>{update();clearTimeout(announcement);announcement=setTimeout(()=>{status.textContent='Infografías '+count.textContent;},220);},{passive:true});new ResizeObserver(update).observe(track);update();
+}
