@@ -163,3 +163,8 @@ for(const gallery of document.querySelectorAll('[data-infographics]')){
  const move=direction=>{const {visible,width,gap}=position();track.scrollBy({left:direction*visible*(width+gap),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});};
  previous.hidden=next.hidden=cards.length<2;previous.addEventListener('click',()=>move(-1));next.addEventListener('click',()=>move(1));track.addEventListener('keydown',event=>{if(event.target!==track||!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();move(event.key==='ArrowLeft'?-1:1);});let announcement;track.addEventListener('scroll',()=>{update();clearTimeout(announcement);announcement=setTimeout(()=>{status.textContent='Infografías '+count.textContent;},220);},{passive:true});new ResizeObserver(update).observe(track);update();
 }
+
+for(const section of document.querySelectorAll('[data-social-recordings]')){
+ const player=section.querySelector('[data-social-player]'),title=section.querySelector('[data-social-title]'),watch=section.querySelector('[data-social-watch]'),buttons=[...section.querySelectorAll('[data-social-video]')];
+ for(const button of buttons)button.addEventListener('click',()=>{const id=button.dataset.socialVideo;if(!/^[A-Za-z0-9_-]{11}$/.test(id)||button.getAttribute('aria-pressed')==='true')return;player.src='https://www.youtube-nocookie.com/embed/'+id;player.title=button.dataset.title;title.textContent=button.dataset.title;watch.href='https://www.youtube.com/watch?v='+id;for(const item of buttons)item.setAttribute('aria-pressed',String(item===button));});
+}

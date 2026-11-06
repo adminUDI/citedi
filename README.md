@@ -65,3 +65,7 @@ La portada incorpora los videos originales de Maestría (`rK5lmU75Wtk`) y Doctor
 ## Encabezado e idioma inglés
 
 El encabezado institucional usa los logos e icono de idioma recuperados del IPN, con la identidad de CITEDI. La lupa abre un buscador local. Los controles permiten contraste y tamaño de letra. `/en` presenta la portada en inglés, con páginas para About, Research, Environment, Master’s, Doctorate, Admissions, Services y Contact. Las publicaciones y documentos originales en español se identifican mediante enlaces. El formulario en inglés registra solicitudes en la misma bandeja del CMS. `english.js` contiene los textos en inglés; las traducciones se mantienen en el código.
+
+## Redes sociales y transmisiones
+
+La sección `#redes-sociales` muestra tres grabaciones verificadas del canal @citediipn, un selector de videos, el panel público de Facebook CITEDIIPN y el Mensaje del Secretario de Educación Pública difundido por IPNoficial. `social-videos.json` guarda la selección consultada el 6 de noviembre de 2026; se mantiene en el código. Los reproductores cargan de forma diferida y no inician automáticamente. El panel de Facebook depende de la disponibilidad del servicio y conserva un enlace directo a la página oficial.

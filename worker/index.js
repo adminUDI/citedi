@@ -1,3 +1,4 @@
+import {socialSection} from '../social-section.js';
 import {communityAssetTypes} from '../community-news.js';
 import {visualShortcuts,visualResearch} from '../visual-sections.js';
 import quickPages from '../quick-pages.json' with {type:'json'};
@@ -64,7 +65,7 @@ function equal(a,b) {
   return difference === 0;
 }
 const headers = {
-  'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; frame-src https://www.google.com https://www.youtube-nocookie.com; font-src 'self'; style-src 'self'; img-src 'self' https:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+  'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; frame-src https://www.google.com https://www.youtube-nocookie.com https://www.facebook.com; font-src 'self'; style-src 'self'; img-src 'self' https:; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
   'Referrer-Policy':'strict-origin-when-cross-origin',
   'X-Content-Type-Options':'nosniff',
   'Cache-Control':'no-store'
@@ -85,10 +86,10 @@ const officialLinks = {
   calendar: 'https://www.ipn.mx/calendario-academico.html'
 };
 const socialLinks = [
-  ['Facebook','https://www.facebook.com/CITEDI.IPN/'],
+  ['Facebook','https://www.facebook.com/CITEDIIPN/'],
   ['LinkedIn','https://www.linkedin.com/company/citedi-ipn/'],
   ['Instagram','https://www.instagram.com/citedi_ipn/'],
-  ['YouTube','https://www.youtube.com/user/citediipn']
+  ['YouTube','https://www.youtube.com/@citediipn']
 ];
 const footer = institutionalFooter(html);
 function navigation(content) {
@@ -122,7 +123,7 @@ function home(content, preview = false, updates = [], motion) {
     '<section class="wrap section" id="oferta" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> CONSTRUYE TU SIGUIENTE ETAPA</div><h2>Oferta educativa</h2></div><p>Formación de posgrado en sistemas digitales, investigación y desarrollo tecnológico.</p></div><div class="programs">'+programCards+'</div></section>'+
     visualResearch(c,html)+
     agendaSection(html)+portalExtras(html,updates)+
-    contactSection(c,html,contactForm)+'</main>'+footer);
+    socialSection(html)+contactSection(c,html,contactForm)+'</main>'+footer);
 }
 function authForm(setup, error = '', status = 200) {
   const title = setup ? 'Crea la primera cuenta' : 'Inicia sesión';
