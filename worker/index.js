@@ -1,3 +1,4 @@
+import {applyPortalEdits,portalSettings} from '../portal-settings.js';
 import {communityAssetTypes} from '../community-news.js';
 import {visualShortcuts,visualResearch} from '../visual-sections.js';
 import quickPages from '../quick-pages.json' with {type:'json'};
@@ -113,7 +114,7 @@ function home(content, preview = false, updates = [], motion) {
     ['02','Cómputo inteligente','ciar'],
     ['03','Imagen y telecomunicaciones','titm']
   ].map(([number,label,anchor])=>'<a href="/investigacion#'+anchor+'"><div><span>LÍNEA '+number+'</span>'+label+'</div><b aria-hidden="true">↗</b></a>').join('');
-  return page('Inicio',
+  return page('Inicio',applyPortalEdits(
     (preview?'<div class="preview-banner">Vista previa del borrador <a href="/admin">Volver al gestor</a></div>':'')+
     portalHeader()+navigation(c)+
     '<main id="contenido" class="home-main">'+renderFeature(c,motion,html)+renderNotice(motion,html)+
@@ -121,7 +122,7 @@ function home(content, preview = false, updates = [], motion) {
     '<section class="wrap section" id="oferta" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> CONSTRUYE TU SIGUIENTE ETAPA</div><h2>Oferta educativa</h2></div></div><div class="programs">'+programCards+'</div></section>'+
     visualResearch(c,html)+
     agendaSection(html)+portalExtras(html,updates)+
-    contactSection(c,html,contactForm)+'</main>'+footer);
+    contactSection(c,html,contactForm)+'</main>'+footer,c.portalEdits));
 }
 function authForm(setup, error = '', status = 200) {
   const title = setup ? 'Crea la primera cuenta' : 'Inicia sesión';
@@ -139,7 +140,7 @@ function panel(user,state,accounts,message = '',status = 200) {
       (account.role === 'editor' ? '<form method="post" action="/admin/accounts/status"><input type="hidden" name="email" value="' + html(account.email) + '"><input type="hidden" name="active" value="' + (account.active ? 0 : 1) + '"><button class="button secondary">' + (account.active ? 'Desactivar' : 'Activar') + '</button></form>' : '') + '</div>').join('') +
     '</div><h3>Crear cuenta de edición</h3><form class="new-account" method="post" action="/admin/accounts">' + input('name','Nombre','text','maxlength="100"') + input('email','Correo electrónico','email','maxlength="254"') + input('password','Contraseña inicial','password','autocomplete="new-password" minlength="12" maxlength="128"') + '<button class="button primary">Crear editor</button></form></section>' : '';
   return page('Gestor de contenidos','<div class="utility"><div class="wrap"><span>GESTOR DE CONTENIDOS</span><a href="/">Ver portal ↗</a></div></div><header class="wrap header">' + brand +
-    '<form method="post" action="/logout"><button class="button secondary">Cerrar sesión</button></form></header><main class="wrap dashboard" id="contenido"><aside><small>ESPACIO EDITORIAL</small><strong>' + html(user.name) + '</strong><p>' + (admin ? 'Administrador' : 'Editor') + '</p><a href="#editor">Portada</a><a href="/admin/carrusel">Carrusel y avisos</a><a href="/admin/contenidos">Páginas y publicaciones</a>' + (admin ? '<a href="#usuarios">Usuarios</a><a href="/admin/academico">AdmAcademic</a><a href="/admin/mensajes">Mensajes recibidos</a>' : '') + '<a href="#cuenta">Mi contraseña</a></aside><div class="editor"><div class="eyebrow"><span></span> CONTENIDO DEL PORTAL</div><h1>Editar portada</h1><p>Completa los campos de la página y revisa el borrador antes de publicar.</p>' +
+    '<form method="post" action="/logout"><button class="button secondary">Cerrar sesión</button></form></header><main class="wrap dashboard" id="contenido"><aside><small>ESPACIO EDITORIAL</small><strong>' + html(user.name) + '</strong><p>' + (admin ? 'Administrador' : 'Editor') + '</p><a href="/admin/portal">Portal</a><a href="/admin/carrusel">Carrusel y avisos</a><a href="/admin/contenidos">Páginas y publicaciones</a>' + (admin ? '<a href="#usuarios">Usuarios</a><a href="/admin/academico">AdmAcademic</a><a href="/admin/mensajes">Mensajes recibidos</a>' : '') + '<a href="#cuenta">Mi contraseña</a></aside><div class="editor"><div class="eyebrow"><span></span> CONTENIDO DEL PORTAL</div><h1>Editar datos generales del portal</h1><p><a class="button primary" href="/admin/portal">Abrir editor de todas las secciones →</a></p><p>Completa los campos de la página y revisa el borrador antes de publicar.</p>' +
     alert(message,status === 200) + '<div id="editor" class="editor-toolbar"><strong>' + (state.draft === state.published ? 'Sin cambios pendientes' : 'Borrador pendiente de publicación') + '</strong><a href="/admin/preview" target="_blank" rel="noopener">Vista previa ↗</a></div><form method="post" action="/admin/home"><input type="hidden" name="revision" value="' + state.revision + '">' +
     groups.map(([title,entries]) => '<fieldset class="editor-box"><legend>' + title + '</legend>' + entries.map(([key,label,,limit = 160,kind]) => '<label>' + label + ((limit === 350 || kind === 'multiline') ? '<textarea name="' + key + '" required maxlength="' + limit + '" rows="3">' + html(draft[key]) + '</textarea>' : '<input name="' + key + '" value="' + html(draft[key]) + '" maxlength="' + limit + '"' + (kind === 'optional' ? '' : ' required') + '></label>')).map(field => field.endsWith('</label>') ? field : field + '</label>').join('') + '</fieldset>').join('') +
     '<div class="actions editor-actions"><button class="button secondary" name="action" value="save">Guardar borrador</button>' + (admin ? '<button class="button primary" name="action" value="publish">Publicar cambios</button>' : '') + '</div></form>' + accountSection +
@@ -318,7 +319,7 @@ async function route(request, env) {
   if (method === 'POST') {
     if (request.headers.get('origin') !== url.origin) return page('Solicitud rechazada','<main id="contenido" class="auth"><h1>Solicitud rechazada</h1></main>',403);
     if(path!=='/admin/carrusel/imagen') {
-      form = await readForm(request,path.startsWith('/admin/contenidos/')?2000000:50000);
+      form = await readForm(request,path.startsWith('/admin/contenidos/')||path.startsWith('/admin/portal')?2000000:50000);
       if (!form) return page('Solicitud inválida','<main id="contenido" class="auth"><h1>Solicitud inválida</h1></main>',400);
     }
   }
@@ -384,6 +385,7 @@ async function route(request, env) {
   if (path.startsWith('/admin')) {
     if (!user) return redirect('/admin');
     if(path==='/admin/carrusel/vista-previa'&&method==='GET')return home(JSON.parse((await stateOf()).published),true,await portalHomeUpdates(sql),await readMotion(sql,true));
+    if(path.startsWith('/admin/portal')&&['GET','POST'].includes(method)){const state=await stateOf();const content=JSON.parse(state.draft);const raw=await home({...content,portalEdits:{}},false,await portalHomeUpdates(sql),await readMotion(sql,true,content)).text();return portalSettings({path,method,form,url,user,sql,state,markup:raw,page,redirect});}
     if(path==='/admin/carrusel'&&['GET','POST'].includes(method))return motionAdmin(method,form,url,user,sql,portalContext);
     const contentPage = await portalAdmin(path,method,form,url,user,sql,portalContext);
     if (contentPage) return contentPage;
@@ -393,7 +395,7 @@ async function route(request, env) {
     }
     const render = async (message,status) => panel(user,await stateOf(),user.role === 'admin' ? (await sql('SELECT email,name,role,active FROM accounts ORDER BY role,name,email').all()).results : [],message,status);
     if (path === '/admin' && method === 'GET') {
-      const messages = {saved:'Borrador guardado.',published:'Cambios publicados en la portada.',created:'Cuenta de edición creada.',account:'Estado de la cuenta actualizado.',password:'Contraseña actualizada.'};
+      const messages = {saved:'Borrador guardado.',published:'Cambios publicados en el portal.',created:'Cuenta de edición creada.',account:'Estado de la cuenta actualizado.',password:'Contraseña actualizada.'};
       return render(Object.hasOwn(messages,url.searchParams.get('ok')) ? messages[url.searchParams.get('ok')] : '');
     }
     if (path === '/admin/preview' && method === 'GET') return home(JSON.parse((await stateOf()).draft),true,await portalHomeUpdates(sql),await readMotion(sql,true));
@@ -402,7 +404,7 @@ async function route(request, env) {
       const publish = action === 'publish';
       if (publish && user.role !== 'admin') return render('Tu cuenta solo puede guardar borradores.',403);
       if (!publish && action !== 'save') return render('La acción no es válida.',400);
-      const content = {};
+      const content = {...JSON.parse((await stateOf()).draft)};
       for (const [key,label,,limit = 160,kind] of fields) {
         const value = clean(form.get(key));
         let valid = value.length <= limit && (value || kind === 'optional');
@@ -423,7 +425,7 @@ async function route(request, env) {
       const result = publish
         ? await sql('UPDATE home SET draft=?,published=?,published_at=?,revision=revision+1 WHERE id=1 AND revision=?',serialized,serialized,new Date().toISOString(),revision).run()
         : await sql('UPDATE home SET draft=?,revision=revision+1 WHERE id=1 AND revision=?',serialized,revision).run();
-      if (!result.meta.changes) return render('Otra cuenta modificó la portada. Se cargó la revisión más reciente.',409);
+      if (!result.meta.changes) return render('Otra cuenta modificó el portal. Se cargó la revisión más reciente.',409);
       return redirect('/admin?ok=' + (publish ? 'published' : 'saved'));
     }
     if (path === '/admin/accounts' && method === 'POST') {
@@ -462,7 +464,7 @@ async function route(request, env) {
 }
 export default {
   async fetch(request,env) {
-    try { return await route(request,env); }
+    try { const response=await route(request,env);const url=new URL(request.url);if(request.method==='GET'&&!['/','/en','/en/'].includes(url.pathname)&&!/^\/(admin|login|setup|logout)/.test(url.pathname)&&response.status===200&&response.headers.get('content-type')?.includes('text/html')){const state=await env.DB.prepare('SELECT published FROM home WHERE id=1').first();const settings=state&&JSON.parse(state.published).portalEdits;if(settings&&Object.keys(settings).length)return new Response(applyPortalEdits(await response.text(),settings,true),{status:response.status,headers:response.headers});}return response; }
     catch (error) {
       console.error(error);
       return page('Error del servidor','<main id="contenido" class="auth"><h1>No se pudo completar la solicitud</h1><a href="/">Volver al inicio</a></main>',500);
