@@ -278,3 +278,5 @@ footer.reference-footer{padding:0;border:0;background:#611232;color:white}
 .audience-bar{border-top-color:#dedede;border-bottom-color:#dedede}.audience-bar a{border-left-color:#dedede}.audience-bar a:last-child{border-right-color:#dedede}
 
 .institutional-hub .institutional-hub-heading{display:block;width:min(1250px,calc(100% - 48px));max-width:1250px;margin-inline:auto;text-align:center}.institutional-hub .institutional-hub-heading>div{width:100%;display:block}.institutional-hub-heading .eyebrow{display:flex;justify-content:center;align-items:center;width:100%;margin-inline:auto;text-align:center}.institutional-hub-heading h2{margin-inline:auto;text-align:center}
+
+.institution-nav .nav-items>a.nav-directory-link{padding:10px 12px;justify-content:center}.institution-nav .nav-directory-link svg.directory-book-icon{width:26px;height:26px;flex:none;fill:currentColor}@media(max-width:700px){.institution-nav .nav-items>a.nav-directory-link{padding:8px 10px}}
