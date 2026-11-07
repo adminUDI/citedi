@@ -1,4 +1,5 @@
 const words={
+ 'Agenda':'Agenda','Directorio CITEDI IPN':'CITEDI IPN directory',
  'Noticias destacadas del CITEDI':'CITEDI featured news','Noticias anteriores':'Previous news','Noticias siguientes':'Next news',
  'Video institucional':'Institutional video','Avisos destacados':'Featured notices',
  'Programas de posgrado':'Graduate programs','Consulta la Agenda Politécnica ↗':'View the Polytechnic agenda ↗',
