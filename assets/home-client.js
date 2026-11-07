@@ -177,7 +177,7 @@ for(const section of document.querySelectorAll('.social-strip')){
  dialog.addEventListener('close',()=>{slot.replaceChildren();trigger?.focus();});
 }
 
-for(const opener of document.querySelectorAll('[data-contact-open]')){const dialog=document.getElementById('contact-dialog');if(!dialog?.showModal)continue;opener.addEventListener('click',event=>{if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();dialog.showModal();});dialog.querySelector('[data-contact-close]').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>opener.focus());}
+for(const opener of document.querySelectorAll('[data-contact-open]')){const dialog=document.getElementById('contact-dialog');if(!dialog?.showModal)continue;opener.addEventListener('click',event=>{if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;event.preventDefault();dialog.showModal();opener.classList.add('is-open');opener.setAttribute('aria-expanded','true');});dialog.querySelector('[data-contact-close]').addEventListener('click',()=>dialog.close());opener.setAttribute('aria-haspopup','dialog');opener.setAttribute('aria-controls','contact-dialog');opener.setAttribute('aria-expanded','false');dialog.addEventListener('close',()=>{opener.classList.remove('is-open');opener.setAttribute('aria-expanded','false');opener.focus();});}
 
 // Use YouTube's official player state events to switch from video to notices.
 let institutionalApi;
