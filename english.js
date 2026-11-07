@@ -1,4 +1,5 @@
 const words={
+ 'Fecha de última actualización:':'Last updated:','6 de noviembre de 2026':'November 6, 2026',
  'Agenda':'Agenda','Directorio CITEDI IPN':'CITEDI IPN directory',
  'Noticias destacadas del CITEDI':'CITEDI featured news','Noticias anteriores':'Previous news','Noticias siguientes':'Next news',
  'Video institucional':'Institutional video','Avisos destacados':'Featured notices',
