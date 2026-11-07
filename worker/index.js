@@ -118,7 +118,7 @@ function home(content, preview = false, updates = [], motion) {
     portalHeader()+navigation(c)+
     '<main id="contenido" class="home-main">'+renderFeature(c,motion,html)+renderNotice(motion,html)+
     citediStatistics()+
-    '<section class="wrap section" id="oferta" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> CONSTRUYE TU SIGUIENTE ETAPA</div><h2>Oferta educativa</h2></div><p>Formación de posgrado en sistemas digitales, investigación y desarrollo tecnológico.</p></div><div class="programs">'+programCards+'</div></section>'+
+    '<section class="wrap section" id="oferta" data-reveal><div class="section-head"><div><div class="eyebrow"><span></span> CONSTRUYE TU SIGUIENTE ETAPA</div><h2>Oferta educativa</h2></div></div><div class="programs">'+programCards+'</div></section>'+
     visualResearch(c,html)+
     agendaSection(html)+portalExtras(html,updates)+
     contactSection(c,html,contactForm)+'</main>'+footer);
