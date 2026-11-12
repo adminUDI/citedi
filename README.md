@@ -10,11 +10,22 @@ El administrador puede crear, buscar, editar y archivar registros en los módulo
 
 Requisito: Node.js 24 o posterior con npm. Ejecuta `npm ci` antes de iniciar el servidor.
 
+Para ejecutar el servidor local original con SQLite, usa `npm run start:sqlite`.
+
+## Express, PostgreSQL y Nginx
+
+El servidor principal ahora usa Express y PostgreSQL; el mismo código de rutas y plantillas del portal se conserva. Configura una base PostgreSQL vacía y define las variables antes de iniciar:
+
 ```powershell
+$env:DATABASE_URL = 'postgresql://citedi:TU_PASSWORD@127.0.0.1:5432/citedi'
 $env:CMS_SETUP_KEY = [guid]::NewGuid().ToString('N')
-$env:CMS_SETUP_KEY
-node server.js
 ```
+
+Para trasladar las cuentas, sesiones y contenido de `data/portal.sqlite`, ejecuta una vez `npm run migrate:postgres` con `DATABASE_URL` configurada. El importador no elimina ni modifica SQLite y omite filas que ya existan en PostgreSQL. Luego ejecuta `npm start`; el servidor aplica las tablas al iniciar y escucha en `127.0.0.1:3000` por defecto. La clave `CMS_SETUP_KEY` habilita la creación de la primera cuenta administradora si todavía no existe.
+
+El archivo `nginx.conf` es un bloque `server` que se incluye dentro de `http {}` de Nginx. Envía el portal y `/api/` a Express en `127.0.0.1:3000`. El endpoint `GET /api/health` comprueba que PostgreSQL responde. Las rutas existentes del portal continúan siendo renderizadas por `worker/index.js`; aún no hay una API REST separada para cada módulo.
+
+En producción, configura `PUBLIC_ORIGIN` con el origen HTTPS público exacto para que las cookies y enlaces usen el dominio correcto. Mantén PostgreSQL accesible solo desde la aplicación y guarda `DATABASE_URL` y `CMS_SETUP_KEY` como secretos del servicio.
 
 Abre http://127.0.0.1:3000/admin y pega la clave generada en la consola para crear la primera cuenta de administración. La clave deja de habilitar el registro inicial cuando ya existe el administrador. Usa una contraseña de al menos 12 caracteres. La portada está en http://127.0.0.1:3000/.
 
@@ -30,7 +41,7 @@ Los usuarios pueden actualizar su contraseña desde el panel. El contenido, las 
 ## Estructura
 
 - `worker/index.js` contiene las rutas, plantillas, campos, estilos y reglas de acceso.
-- `server.js` adapta el mismo núcleo a Node.js y SQLite para instalarlo en un servidor propio.
+- `server.js` adapta el mismo núcleo a Express y PostgreSQL; `server-sqlite.js` conserva el modo local anterior.
 - `drizzle/0000_cms.sql` define las tablas. En Sites, el Worker usa la conexión D1 declarada como `DB`.
 - `build.js` prepara el artefacto de Sites. Configura `CMS_SETUP_KEY` como secreto del Worker antes de entrar en `/admin`.
 
